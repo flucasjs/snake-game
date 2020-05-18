@@ -13,6 +13,8 @@ window.addEventListener("load", () => {
 
     let direction = "right";
 
+    let gameStarted = false;
+
     document.addEventListener("keydown", getDirection);
 
     function getDirection(event) {
@@ -24,6 +26,10 @@ window.addEventListener("load", () => {
             direction = "left";
         } else if ((event.code == "ArrowRight") && (direction != "left")) {
             direction = "right";
+        } else if ((event.code == "Enter") && (gameStarted == false)){
+            gameStarted = true;
+            startGame();
+
         }
     }
 
@@ -72,6 +78,8 @@ window.addEventListener("load", () => {
         return false;
 
     }
+
+
 
     function drawScore(score) {
 
@@ -145,7 +153,24 @@ window.addEventListener("load", () => {
         drawScore(score);
 
     }
+
+    function displayStart() {
+
+        context.fillStyle = "green";
+        context.font = "48px Verdanna";
+        context.fillText("Snake Game", 125, 220);
+        context.font = "24px Verdanna";
+        context.fillText(`Press "Enter" to start`, 145, 300);
+
+    }
     
-    setInterval(draw, 60);
+    function startGame() {
+
+        setInterval(draw, 60);
+        
+    }
+
+
+    displayStart();
 
 })
