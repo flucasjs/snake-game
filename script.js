@@ -13,7 +13,8 @@ window.addEventListener("load", () => {
 
     let direction = "right";
 
-    let gameStarted = false;
+    let game = false;
+
 
     document.addEventListener("keydown", getDirection);
 
@@ -26,10 +27,10 @@ window.addEventListener("load", () => {
             direction = "left";
         } else if ((event.code == "ArrowRight") && (direction != "left")) {
             direction = "right";
-        } else if ((event.code == "Enter") && (gameStarted == false)){
-            gameStarted = true;
-            startGame();
-
+        } else if ((event.code == "Enter") && (!game)){
+            game = startGame();
+        } else if (event.code == "Enter") {
+            location.reload();
         }
     }
 
@@ -125,7 +126,8 @@ window.addEventListener("load", () => {
         // Game Over
         if (snakeX < 0 || snakeY < 0 || snakeX >= canvasWidth / snakeWidth ||  snakeY >= canvasHeight / snakeHeight || checkCollision(snakeX, snakeY, snake)) {
 
-            location.reload();
+            clearInterval(game);
+            displayGameOver();
 
         }
 
@@ -144,6 +146,7 @@ window.addEventListener("load", () => {
 
         }
 
+
         
 
         let newHead = { x: snakeX, y: snakeY };
@@ -156,17 +159,28 @@ window.addEventListener("load", () => {
 
     function displayStart() {
 
-        context.fillStyle = "green";
+        context.fillStyle = "gold";
         context.font = "48px Verdanna";
-        context.fillText("Snake Game", 125, 220);
+        context.fillText("Snake Game", 130, 220);
         context.font = "24px Verdanna";
-        context.fillText(`Press "Enter" to start`, 145, 300);
+        context.fillText(`Press "Enter" to start`, 152, 300);
+
+    }
+
+    function displayGameOver() {
+
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        context.fillStyle = "gold";
+        context.font = "48px Verdanna";
+        context.fillText("Game Over", 135, 220);
+        context.font = "24px Verdanna";
+        context.fillText(`Press "Enter" to try again`, 125, 300);
 
     }
     
     function startGame() {
 
-        setInterval(draw, 60);
+        return setInterval(draw, 60);
         
     }
 
