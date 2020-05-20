@@ -1,4 +1,5 @@
-window.addEventListener("load", () => {
+
+window.addEventListener("load", (event) => {
 
     let canvas = document.getElementById("canvas");
     let context = canvas.getContext("2d");
@@ -15,6 +16,9 @@ window.addEventListener("load", () => {
 
     let game = false;
 
+    // Visual element used to toggle theme settings.
+    const TOGGLEON = "fa-toggle-on";
+    const TOGGLEOFF = "fa-toggle-off";
 
     document.addEventListener("keydown", getDirection);
 
@@ -180,11 +184,31 @@ window.addEventListener("load", () => {
     
     function startGame() {
 
-        return setInterval(draw, 60);
+        return setInterval(draw, 40);
         
     }
 
 
     displayStart();
+    
 
-})
+    theme.addEventListener("click", (event) => {
+
+        const element = event.target;
+        
+        element.classList.toggle(TOGGLEON);
+        element.classList.toggle(TOGGLEOFF);
+
+        if (element.classList.contains(TOGGLEON)) {
+
+            document.body.style.background = "rgba(0, 0, 0, 0.75)";
+            
+        } else {
+
+            document.body.style.background = "whitesmoke";
+
+        }
+
+    });
+
+});

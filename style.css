@@ -17,3 +17,19 @@ body {
     margin: 0;
     border: 10px outset orange;
 }
+
+#theme {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 25px;
+    height: 25px;
+}
+
+#theme i {
+    font-size: 30px;
+}
+
+#theme i:hover {
+    cursor: pointer;
+}
