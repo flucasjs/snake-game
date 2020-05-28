@@ -16,9 +16,24 @@ window.addEventListener("load", (event) => {
 
     let game = false;
 
+    let gameState = 0;
+
     // Visual element used to toggle theme settings.
     const TOGGLEON = "fa-toggle-on";
     const TOGGLEOFF = "fa-toggle-off";
+
+    let style = localStorage.getItem("THEME");
+
+    if (style == "dark") {
+
+        let element = document.getElementById("toggle");
+
+        element.classList.toggle(TOGGLEON);
+        element.classList.toggle(TOGGLEOFF);
+
+        document.body.style.background = "rgba(0, 0, 0, 0.75)";
+
+    }
 
     document.addEventListener("keydown", getDirection);
 
@@ -31,10 +46,10 @@ window.addEventListener("load", (event) => {
             direction = "left";
         } else if ((event.code == "ArrowRight") && (direction != "left")) {
             direction = "right";
-        } else if ((event.code == "Enter") && (!game)){
+        } else if ((event.code == "Enter") && (gameState == 0)){
             game = startGame();
-        } else if (event.code == "Enter") {
-            location.reload();
+        } else if ((event.code == "Enter") && (gameState == 1)) {
+            game();
         }
     }
 
@@ -130,8 +145,8 @@ window.addEventListener("load", (event) => {
         // Game Over
         if (snakeX < 0 || snakeY < 0 || snakeX >= canvasWidth / snakeWidth ||  snakeY >= canvasHeight / snakeHeight || checkCollision(snakeX, snakeY, snake)) {
 
-            clearInterval(game);
             displayGameOver();
+            gameState = 1;
 
         }
 
@@ -184,7 +199,16 @@ window.addEventListener("load", (event) => {
     
     function startGame() {
 
-        return setInterval(draw, 40);
+        gameState = 1;
+
+        let interval = setInterval(draw, 40);
+
+        return (() => {
+
+            clearInterval(interval);
+            resetGame();
+
+        });
         
     }
 
@@ -202,13 +226,36 @@ window.addEventListener("load", (event) => {
         if (element.classList.contains(TOGGLEON)) {
 
             document.body.style.background = "rgba(0, 0, 0, 0.75)";
+            localStorage.setItem("THEME", "dark");
+           
             
         } else {
 
             document.body.style.background = "whitesmoke";
+            localStorage.setItem("THEME", "light");
 
         }
 
     });
+
+    function resetGame() {
+
+        gameState = 0;
+
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        snake = [];
+    
+        for (let i = len - 1; i >= 0; i--) {
+
+            snake.push({ x: i, y: 0});
+
+        }
+
+        displayStart();
+
+        score = 4;
+
+    }
 
 });
