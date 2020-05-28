@@ -48,6 +48,7 @@ window.addEventListener("load", (event) => {
             direction = "right";
         } else if ((event.code == "Enter") && (gameState == 0)){
             game = startGame();
+            direction = "right";
         } else if ((event.code == "Enter") && (gameState == 1)) {
             game();
         }
@@ -123,6 +124,8 @@ window.addEventListener("load", (event) => {
 
         let snakeX = snake[0].x;
         let snakeY = snake[0].y;
+
+
 
         if (direction == "up") {
 
@@ -209,6 +212,8 @@ window.addEventListener("load", (event) => {
             resetGame();
 
         });
+
+        direction = "right"
         
     }
 
@@ -251,6 +256,8 @@ window.addEventListener("load", (event) => {
             snake.push({ x: i, y: 0});
 
         }
+
+        direction = "right";
 
         displayStart();
 
