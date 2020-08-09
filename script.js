@@ -70,8 +70,8 @@ window.addEventListener("load", (event) => {
     }
 
     let food = {
-        x: Math.floor(Math.random() * ((canvasWidth / snakeWidth) - 1) + 1),
-        y: Math.floor(Math.random() * ((canvasHeight / snakeHeight) - 1) + 1),
+        x: Math.floor(Math.random() * (canvasWidth / snakeWidth) - 1),
+        y: Math.floor(Math.random() * (canvasHeight / snakeHeight) - 1),
     }
     
     function drawFood(x, y) {
@@ -146,7 +146,7 @@ window.addEventListener("load", (event) => {
         }
 
         // Game Over
-        if (snakeX < 0 || snakeY < 0 || snakeX >= canvasWidth / snakeWidth ||  snakeY >= canvasHeight / snakeHeight || checkCollision(snakeX, snakeY, snake)) {
+        if (snakeX < 0 || snakeY < 0 || snakeX >= (canvasWidth / snakeWidth) ||  snakeY >= (canvasHeight / snakeHeight) || checkCollision(snakeX, snakeY, snake)) {
 
             displayGameOver();
             gameState = 1;
@@ -156,8 +156,8 @@ window.addEventListener("load", (event) => {
         if ((snakeX == food.x) && (snakeY == food.y)) {
 
             food = {
-                x: Math.floor(Math.random() * ((canvasWidth / snakeWidth) - 1) + 1),
-                y: Math.round(Math.random() * ((canvasHeight / snakeHeight) - 1) + 1),
+                x: Math.floor(Math.random() * (canvasWidth / snakeWidth) - 1),
+                y: Math.round(Math.random() * (canvasHeight / snakeHeight) - 1),
             }
             
             score++;
