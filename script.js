@@ -11,6 +11,10 @@ let direction = "right";
 let game = false;
 let gameState = 0;
 
+ // Visual element used to toggle theme settings.
+ const TOGGLEON = "fa-toggle-on";
+ const TOGGLEOFF = "fa-toggle-off";
+
 let len = 4;
 let snake = [];
 
@@ -29,32 +33,16 @@ let food = {
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
 
     displayStart();
-    
-    // Visual element used to toggle theme settings.
-    const TOGGLEON = "fa-toggle-on";
-    const TOGGLEOFF = "fa-toggle-off";
+    setTheme();
 
-    let style = localStorage.getItem("THEME");
-
-    if (style == "dark") {
-
-        let element = document.getElementById("toggle");
-
-        element.classList.toggle(TOGGLEON);
-        element.classList.toggle(TOGGLEOFF);
-
-        document.body.style.background = "rgba(0, 0, 0, 0.75)";
-
-    }
-    
 });
 
 document.addEventListener("keydown", getDirection);
 
-theme.addEventListener("click", (event) => {
+theme.addEventListener("click", () => {
 
     const element = event.target;
     
@@ -91,8 +79,6 @@ function startGame() {
 
     });
 
-    direction = "right"
-    
 }
 
 function resetGame() {
@@ -273,6 +259,23 @@ function displayGameOver() {
     context.fillText("Game Over", 135, 220);
     context.font = "24px Verdanna";
     context.fillText(`Press "Enter" to try again`, 125, 300);
+
+}
+
+function setTheme() {
+    
+    let style = localStorage.getItem("THEME");
+
+    if (style == "dark") {
+
+        let element = document.getElementById("toggle");
+
+        element.classList.toggle(TOGGLEON);
+        element.classList.toggle(TOGGLEOFF);
+
+        document.body.style.background = "rgba(0, 0, 0, 0.75)";
+
+    }
 
 }
 
