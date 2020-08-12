@@ -10,6 +10,8 @@ let score = 4;
 let direction = "right";
 let game = false;
 let gameState = 0;
+let maxWidth = canvasWidth / snakeWidth;
+let maxHeight = canvasHeight / snakeHeight;
 
  // Visual element used to toggle theme settings.
  const TOGGLEON = "fa-toggle-on";
@@ -26,8 +28,8 @@ for (let i = len - 1; i >= 0; i--) {
 
 let food = {
 
-    x: Math.floor(Math.random() * (canvasWidth / snakeWidth) - 1),
-    y: Math.floor(Math.random() * (canvasHeight / snakeHeight) - 1),
+    x: Math.floor(getRandomArbitrary(5, maxWidth - 5)),
+    y: Math.floor(getRandomArbitrary(5, maxHeight - 5)),
 
 }
 
@@ -36,33 +38,13 @@ let food = {
 window.addEventListener("load", () => {
 
     displayStart();
-    setTheme();
+    loadTheme();
 
 });
 
 document.addEventListener("keydown", getDirection);
 
-theme.addEventListener("click", () => {
-
-    const element = event.target;
-    
-    element.classList.toggle(TOGGLEON);
-    element.classList.toggle(TOGGLEOFF);
-
-    if (element.classList.contains(TOGGLEON)) {
-
-        document.body.style.background = "rgba(0, 0, 0, 0.75)";
-        localStorage.setItem("THEME", "dark");
-        
-        
-    } else {
-
-        document.body.style.background = "whitesmoke";
-        localStorage.setItem("THEME", "light");
-
-    }
-
-});
+theme.addEventListener("click", setTheme);
 
 // -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
 
@@ -167,8 +149,6 @@ function checkCollision(x, y, array) {
 
 }
 
-
-
 function drawScore(score) {
 
     context.fillStyle = "yellow";
@@ -213,7 +193,7 @@ function draw() {
     }
 
     // Game Over
-    if (snakeX < 0 || snakeY < 0 || snakeX >= (canvasWidth / snakeWidth) ||  snakeY >= (canvasHeight / snakeHeight) || checkCollision(snakeX, snakeY, snake)) {
+    if (snakeX < 0 || snakeY < 0 || snakeX >= maxWidth ||  snakeY >= maxHeight || checkCollision(snakeX, snakeY, snake)) {
 
         displayGameOver();
         gameState = 1;
@@ -223,10 +203,12 @@ function draw() {
     if ((snakeX == food.x) && (snakeY == food.y)) {
 
         food = {
-            x: Math.floor(Math.random() * (canvasWidth / snakeWidth) - 1),
-            y: Math.round(Math.random() * (canvasHeight / snakeHeight) - 1),
-        }
+
+            x: Math.floor(getRandomArbitrary(5, maxWidth - 5)),
+            y: Math.floor(getRandomArbitrary(5, maxHeight - 5)),
         
+        };
+
         score++;
 
     } else {
@@ -262,7 +244,7 @@ function displayGameOver() {
 
 }
 
-function setTheme() {
+function loadTheme() {
     
     let style = localStorage.getItem("THEME");
 
@@ -276,6 +258,34 @@ function setTheme() {
         document.body.style.background = "rgba(0, 0, 0, 0.75)";
 
     }
+
+}
+
+function setTheme() {
+
+    let element = event.target;
+
+    element.classList.toggle(TOGGLEON);
+    element.classList.toggle(TOGGLEOFF);
+
+    if (element.classList.contains(TOGGLEON)) {
+
+        document.body.style.background = "rgba(0, 0, 0, 0.75)";
+        localStorage.setItem("THEME", "dark");
+        
+        
+    } else {
+
+        document.body.style.background = "whitesmoke";
+        localStorage.setItem("THEME", "light");
+
+    }
+
+}
+
+function getRandomArbitrary(min, max) {
+
+    return Math.random() * (max - min) + min;
 
 }
 
