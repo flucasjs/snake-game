@@ -1,31 +1,34 @@
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
+// Initialize 2d drawing context instance for canvas element.
 let canvas = document.getElementById("canvas");
 let context = canvas.getContext("2d");
+
+// Dimensions
 let canvasWidth = canvas.width;
 let canvasHeight = canvas.height;
 let snakeWidth = 10;
 let snakeHeight = 10;
+let maxWidth = canvasWidth / snakeWidth;
+let maxHeight = canvasHeight / snakeHeight;
+
+// Initial parameters for game.
 let score = 4;
 let direction = "right";
 let game = false;
 let gameState = 0;
-let maxWidth = canvasWidth / snakeWidth;
-let maxHeight = canvasHeight / snakeHeight;
+
 
  // Visual element used to toggle theme settings.
  const TOGGLEON = "fa-toggle-on";
  const TOGGLEOFF = "fa-toggle-off";
 
-let len = 4;
-let snake = [];
+//  Initialize a snake of 4 blocks.
+//  A snake is an array of objects 
+//  Each object defines the x and y coordinates of the individual blocks that make up the snake.
+ let snake = createSnake(4);
 
-for (let i = len - 1; i >= 0; i--) {
-
-    snake.push({ x: i, y: 0});
-
-}
-
+// Randomize food block location at least 5 blocks from edges to minimize difficulty.
 let food = {
 
     x: Math.floor(getRandomArbitrary(5, maxWidth - 5)),
@@ -35,6 +38,7 @@ let food = {
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
+// Initialize the game and background theme.
 window.addEventListener("load", () => {
 
     displayStart();
@@ -42,12 +46,15 @@ window.addEventListener("load", () => {
 
 });
 
+// Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", getDirection);
 
+// Set the background theme whene user clicks on toggle element.
 theme.addEventListener("click", setTheme);
 
 // -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
 
+// Initializes the game state.
 function startGame() {
 
     gameState = 1;
@@ -67,13 +74,7 @@ function resetGame() {
 
     gameState = 0;
     context.clearRect(0, 0, canvasWidth, canvasHeight);
-    snake = [];
-
-    for (let i = len - 1; i >= 0; i--) {
-
-        snake.push({ x: i, y: 0});
-
-    }
+    snake = createSnake(4);
 
     direction = "right";
     displayStart();
@@ -83,19 +84,19 @@ function resetGame() {
 
 function getDirection(event) {
 
-    if ((event.code == "ArrowUp") && (direction != "down")) {
+    if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
 
         direction = "up";
 
-    } else if ((event.code == "ArrowDown") && (direction != "up")) {
+    } else if ((event.code == "ArrowDown" || event.code == "KeyS") && (direction != "up")) {
 
         direction = "down";
 
-    } else if ((event.code == "ArrowLeft") && (direction != "right")) {
+    } else if ((event.code == "ArrowLeft" || event.code == "KeyA") && (direction != "right")) {
 
         direction = "left";
 
-    } else if ((event.code == "ArrowRight") && (direction != "left")) {
+    } else if ((event.code == "ArrowRight" || event.code == "KeyD") && (direction != "left")) {
 
         direction = "right";
 
@@ -121,8 +122,6 @@ function drawSnake(x, y) {
 
 }
 
-
-
 function drawFood(x, y) {
 
     context.fillStyle = "yellow";
@@ -133,11 +132,11 @@ function drawFood(x, y) {
 
 }
 
-function checkCollision(x, y, array) {
+function checkCollision(x, y, snakeArray) {
     
-    for (let i = 0; i < array.length; i++) {
+    for (let i = 0; i < snakeArray.length; i++) {
 
-        if ((x == array[i].x) && (y == array[i].y)) {
+        if ((x == snakeArray[i].x) && (y == snakeArray[i].y)) {
 
             return true;
             
@@ -288,5 +287,19 @@ function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 
 }
+
+function createSnake(len) {
+
+    let snake = [];
+    
+    for (let i = len - 1; i >= 0; i--) {
+    
+        snake.push({ x: i, y: 0});
+    
+    }
+
+    return snake;
+
+ }
 
 
