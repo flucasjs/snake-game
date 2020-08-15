@@ -9,13 +9,12 @@ let canvasWidth = canvas.width;
 let canvasHeight = canvas.height;
 let snakeWidth = 10;
 let snakeHeight = 10;
-let maxWidth = canvasWidth / snakeWidth;
-let maxHeight = canvasHeight / snakeHeight;
+let maxCanvasBlockWidth = canvasWidth / snakeWidth;
+let maxCanvasBlockHeight = canvasHeight / snakeHeight;
 
 // Initial parameters for game.
 let score = 4;
 let direction = "right";
-let game = false;
 let gameState = 0;
 
 
@@ -29,12 +28,7 @@ let gameState = 0;
  let snake = createSnake(4);
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
-let food = {
-
-    x: Math.floor(getRandomArbitrary(5, maxWidth - 5)),
-    y: Math.floor(getRandomArbitrary(5, maxHeight - 5)),
-
-}
+let food = createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, 5);
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
@@ -73,9 +67,8 @@ function startGame() {
 function resetGame() {
 
     gameState = 0;
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    clearCanvas(context, canvasWidth, canvasHeight);
     snake = createSnake(4);
-
     direction = "right";
     displayStart();
     score = 4;
@@ -102,12 +95,12 @@ function getDirection(event) {
 
     } else if ((event.code == "Enter") && (gameState == 0)) {
 
-        game = startGame();
+        window.game = startGame();
         direction = "right";
 
     } else if ((event.code == "Enter") && (gameState == 1)) {
 
-        game();
+        window.game();
 
     }
 }
@@ -148,6 +141,12 @@ function checkCollision(x, y, snakeArray) {
 
 }
 
+function checkOutOfBounds(snakeX, snakeY, maxCanvasBlockWidth, maxCanvasBlockHeight) {
+
+    return (snakeX < 0 || snakeY < 0 || snakeX >= maxCanvasBlockWidth ||  snakeY >= maxCanvasBlockHeight)
+    
+}
+
 function drawScore(score) {
 
     context.fillStyle = "yellow";
@@ -156,9 +155,15 @@ function drawScore(score) {
 
 }
 
-function draw() {
+function clearCanvas(context, canvasWidth, canvasHeight) {
 
     context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+}
+
+function draw() {
+
+    clearCanvas(context, canvasWidth, canvasHeight);
 
     for (let i = 0; i < snake.length; i++) {
 
@@ -192,7 +197,7 @@ function draw() {
     }
 
     // Game Over
-    if (snakeX < 0 || snakeY < 0 || snakeX >= maxWidth ||  snakeY >= maxHeight || checkCollision(snakeX, snakeY, snake)) {
+    if (checkOutOfBounds(snakeX, snakeY, maxCanvasBlockWidth, maxCanvasBlockHeight) || checkCollision(snakeX, snakeY, snake)) {
 
         displayGameOver();
         gameState = 1;
@@ -201,12 +206,7 @@ function draw() {
 
     if ((snakeX == food.x) && (snakeY == food.y)) {
 
-        food = {
-
-            x: Math.floor(getRandomArbitrary(5, maxWidth - 5)),
-            y: Math.floor(getRandomArbitrary(5, maxHeight - 5)),
-        
-        };
+        food = createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, 5);
 
         score++;
 
@@ -282,7 +282,7 @@ function setTheme() {
 
 }
 
-function getRandomArbitrary(min, max) {
+function getRandomArbitraryNumber(min, max) {
 
     return Math.random() * (max - min) + min;
 
@@ -302,4 +302,14 @@ function createSnake(len) {
 
  }
 
+ function createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, borderOffset = 0) {
+
+    return {
+
+        x: Math.floor(getRandomArbitraryNumber(5, maxCanvasBlockWidth - borderOffset)),
+        y: Math.floor(getRandomArbitraryNumber(5, maxCanvasBlockHeight - borderOffset)),
+    
+    };
+
+}
 
