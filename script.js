@@ -1,41 +1,38 @@
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
-// Initialize 2d drawing context instance for canvas element.
+// Initialize 2d drawing context for canvas element.
 let canvas = document.getElementById("canvas");
 let context = canvas.getContext("2d");
 
 // Dimensions
-let canvasWidth = canvas.width;
-let canvasHeight = canvas.height;
-let snakeWidth = 10;
-let snakeHeight = 10;
-let maxCanvasBlockWidth = canvasWidth / snakeWidth;
-let maxCanvasBlockHeight = canvasHeight / snakeHeight;
+let blockWidth = 10;
+let blockHeight = 10;
+let blockSpanHorizontal = canvas.width / blockWidth;
+let blockSpanVertical = canvas.height / blockHeight;
 
 // Initial parameters for game.
 let score = 4;
 let direction = "right";
 let gameState = 0;
 
-
  // Visual element used to toggle theme settings.
  const TOGGLEON = "fa-toggle-on";
  const TOGGLEOFF = "fa-toggle-off";
 
 //  Initialize a snake of 4 blocks.
-//  A snake is an array of objects 
+//  A snake is an array of objects.
 //  Each object defines the x and y coordinates of the individual blocks that make up the snake.
  let snake = createSnake(4);
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
-let food = createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, 5);
+let food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
 window.addEventListener("load", () => {
 
-    displayStart();
+    displayStart(context);
     loadTheme();
 
 });
@@ -49,29 +46,37 @@ theme.addEventListener("click", setTheme);
 // -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
 
 // Initializes the game state.
-function startGame() {
+function startGame(context, canvas) {
 
     gameState = 1;
 
-    let interval = setInterval(draw, 45);
+    let interval = setInterval(draw, 45, context, canvas);
 
     return (() => {
 
         clearInterval(interval);
-        resetGame();
+        resetGame(context, canvas);
 
     });
 
 }
 
-function resetGame() {
+// Reset display and initial game parameters,
+function resetGame(context, canvas) {
 
+    resetDisplay(context, canvas)
     gameState = 0;
-    clearCanvas(context, canvasWidth, canvasHeight);
     snake = createSnake(4);
     direction = "right";
-    displayStart();
     score = 4;
+
+}
+
+// Clears canvas and displays menu.
+function resetDisplay(context, canvas) {
+
+    clearCanvas(context, canvas);
+    displayStart(context);
 
 }
 
@@ -95,7 +100,7 @@ function getDirection(event) {
 
     } else if ((event.code == "Enter") && (gameState == 0)) {
 
-        window.game = startGame();
+        window.game = startGame(context, canvas);
         direction = "right";
 
     } else if ((event.code == "Enter") && (gameState == 1)) {
@@ -105,23 +110,32 @@ function getDirection(event) {
     }
 }
 
-function drawSnake(x, y) {
+function drawSnakeBlock(x, y, blockWidth, blockHeight) {
 
     context.fillStyle = "white";
-    context.fillRect(x * snakeWidth, y * snakeHeight, snakeWidth, snakeHeight);
+    context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
 
     context.strokeStyle = "aqua";
-    context.strokeRect(x * snakeWidth, y * snakeHeight, snakeWidth, snakeHeight);
+    context.strokeRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
 
 }
 
-function drawFood(x, y) {
+function drawSnake(snake, blockWidth, blockHeight) {
+
+    for (let i = 0; i < snake.length; i++) {
+
+        drawSnakeBlock(snake[i].x, snake[i].y, blockWidth, blockHeight)
+
+    }
+}
+
+function drawFood(x, y, blockWidth, blockHeight) {
 
     context.fillStyle = "yellow";
-    context.fillRect(x * snakeWidth, y * snakeHeight, snakeWidth, snakeHeight);
+    context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
 
     context.strokeStyle = "orange";
-    context.strokeRect(x * snakeWidth, y * snakeHeight, snakeWidth, snakeHeight);
+    context.strokeRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
 
 }
 
@@ -141,72 +155,66 @@ function checkCollision(x, y, snakeArray) {
 
 }
 
-function checkOutOfBounds(snakeX, snakeY, maxCanvasBlockWidth, maxCanvasBlockHeight) {
+function checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) {
 
-    return (snakeX < 0 || snakeY < 0 || snakeX >= maxCanvasBlockWidth ||  snakeY >= maxCanvasBlockHeight)
+    return (snakeHeadX < 0 || snakeHeadY < 0 || snakeHeadX >= blockSpanHorizontal ||  snakeHeadY >= blockSpanVertical)
     
 }
 
-function drawScore(score) {
+function drawScore(score, context, canvas) {
 
     context.fillStyle = "yellow";
     context.font = "10px Verdana";
-    context.fillText(`Score: ${score}`, 5, canvasHeight - 5);
+    context.fillText(`Score: ${score}`, 5, canvas.height - 5);
 
 }
 
-function clearCanvas(context, canvasWidth, canvasHeight) {
+function clearCanvas(context, canvas) {
 
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
 }
 
-function draw() {
+function draw(context, canvas) {
 
-    clearCanvas(context, canvasWidth, canvasHeight);
+    clearCanvas(context, canvas)
 
-    for (let i = 0; i < snake.length; i++) {
+    drawSnake(snake, blockWidth, blockHeight)
 
-        let x = snake[i].x;
-        let y = snake[i].y;
-        drawSnake(x, y);
+    drawFood(food.x, food.y, blockWidth, blockHeight);
 
-    }
-
-    drawFood(food.x, food.y);
-
-    let snakeX = snake[0].x;
-    let snakeY = snake[0].y;
+    let snakeHeadX = snake[0].x;
+    let snakeHeadY = snake[0].y;
 
     if (direction == "up") {
 
-        snakeY--;
+        snakeHeadY--;
 
     } else if (direction == "down") {
 
-        snakeY++;
+        snakeHeadY++;
 
     } else if (direction == "left") {
 
-        snakeX--;
+        snakeHeadX--;
 
     } else if (direction == "right") {
 
-        snakeX++;
+        snakeHeadX++;
 
     }
 
     // Game Over
-    if (checkOutOfBounds(snakeX, snakeY, maxCanvasBlockWidth, maxCanvasBlockHeight) || checkCollision(snakeX, snakeY, snake)) {
+    if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
 
-        displayGameOver();
+        displayGameOver(context, canvas);
         gameState = 1;
 
     }
 
-    if ((snakeX == food.x) && (snakeY == food.y)) {
+    if ((snakeHeadX == food.x) && (snakeHeadY == food.y)) {
 
-        food = createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, 5);
+        food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
 
         score++;
 
@@ -216,13 +224,13 @@ function draw() {
 
     }
 
-    let newHead = { x: snakeX, y: snakeY };
+    let newHead = { x: snakeHeadX, y: snakeHeadY };
     snake.unshift(newHead);
-    drawScore(score);
+    drawScore(score, context, canvas);
 
 }
 
-function displayStart() {
+function displayStart(context) {
 
     context.fillStyle = "gold";
     context.font = "48px Verdanna";
@@ -232,9 +240,9 @@ function displayStart() {
 
 }
 
-function displayGameOver() {
+function displayGameOver(context, canvas) {
 
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    clearCanvas(context, canvas);
     context.fillStyle = "gold";
     context.font = "48px Verdanna";
     context.fillText("Game Over", 135, 220);
@@ -302,12 +310,12 @@ function createSnake(len) {
 
  }
 
- function createRandomFoodObject(maxCanvasBlockWidth, maxCanvasBlockHeight, borderOffset = 0) {
+ function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
 
     return {
 
-        x: Math.floor(getRandomArbitraryNumber(5, maxCanvasBlockWidth - borderOffset)),
-        y: Math.floor(getRandomArbitraryNumber(5, maxCanvasBlockHeight - borderOffset)),
+        x: Math.floor(getRandomArbitraryNumber(5, blockSpanHorizontal - borderOffset)),
+        y: Math.floor(getRandomArbitraryNumber(5, blockSpanVertical - borderOffset)),
     
     };
 
