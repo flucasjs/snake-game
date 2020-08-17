@@ -80,6 +80,7 @@ function resetDisplay(context, canvas) {
 
 }
 
+// Set direction based on user input. Reset game if Enter key is pressed.
 function getDirection(event) {
 
     if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
@@ -110,7 +111,8 @@ function getDirection(event) {
     }
 }
 
-function drawSnakeBlock(x, y, blockWidth, blockHeight) {
+// Draw a single snake block at given location.
+function drawSnakeBlock(context, x, y, blockWidth, blockHeight) {
 
     context.fillStyle = "white";
     context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
@@ -120,16 +122,18 @@ function drawSnakeBlock(x, y, blockWidth, blockHeight) {
 
 }
 
-function drawSnake(snake, blockWidth, blockHeight) {
+// Draw snake of given block dimensions.
+function drawSnake(context, snake, blockWidth, blockHeight) {
 
     for (let i = 0; i < snake.length; i++) {
 
-        drawSnakeBlock(snake[i].x, snake[i].y, blockWidth, blockHeight)
+        drawSnakeBlock(context, snake[i].x, snake[i].y, blockWidth, blockHeight)
 
     }
 }
 
-function drawFood(x, y, blockWidth, blockHeight) {
+// Draw food block at given location.
+function drawFood(context, x, y, blockWidth, blockHeight) {
 
     context.fillStyle = "yellow";
     context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
@@ -179,9 +183,9 @@ function draw(context, canvas) {
 
     clearCanvas(context, canvas)
 
-    drawSnake(snake, blockWidth, blockHeight)
+    drawSnake(context, snake, blockWidth, blockHeight)
 
-    drawFood(food.x, food.y, blockWidth, blockHeight);
+    drawFood(context, food.x, food.y, blockWidth, blockHeight);
 
     let snakeHeadX = snake[0].x;
     let snakeHeadY = snake[0].y;
