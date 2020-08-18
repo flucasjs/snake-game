@@ -1,3 +1,32 @@
+// -------------------------------------------------- CLASS DEFINITIONS -------------------------------------------------- //
+
+class Snake {
+
+    constructor(length = 4, dimension = 10) {
+
+        this.blocks = []
+        this.length = length;
+        this.dimensions = {
+
+            blockWidth: dimension,
+            blockHeight: dimension,
+
+        };
+
+    }
+
+    initSnake() {
+
+        for (let i = this.length - 1; i >= 0; i--) {
+        
+            this.blocks.push({ x: i, y: 0 });
+        
+        }
+
+    };
+
+}
+
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
 // Initialize 2d drawing context for canvas element.
@@ -15,17 +44,20 @@ let score = 4;
 let direction = "right";
 let gameState = 0;
 
- // Visual element used to toggle theme settings.
- const TOGGLEON = "fa-toggle-on";
- const TOGGLEOFF = "fa-toggle-off";
+// Visual element used to toggle theme settings.
+const TOGGLEON = "fa-toggle-on";
+const TOGGLEOFF = "fa-toggle-off";
 
 //  Initialize a snake of 4 blocks.
 //  A snake is an array of objects.
 //  Each object defines the x and y coordinates of the individual blocks that make up the snake.
- let snake = createSnake(4);
+let snake = new Snake(4, 10);
+snake.initSnake();
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
 let food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
+
+
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
@@ -46,11 +78,11 @@ theme.addEventListener("click", setTheme);
 // -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
 
 // Initializes the game state.
-function startGame(context, canvas) {
+function startGame(context, canvas, snake) {
 
     gameState = 1;
 
-    let interval = setInterval(draw, 45, context, canvas);
+    let interval = setInterval(draw, 45, context, canvas, snake);
 
     return (() => {
 
@@ -66,7 +98,8 @@ function resetGame(context, canvas) {
 
     resetDisplay(context, canvas)
     gameState = 0;
-    snake = createSnake(4);
+    snake = new Snake(4, 10);
+    snake.initSnake();
     direction = "right";
     score = 4;
 
@@ -101,7 +134,7 @@ function getDirection(event) {
 
     } else if ((event.code == "Enter") && (gameState == 0)) {
 
-        window.game = startGame(context, canvas);
+        window.game = startGame(context, canvas, snake);
         direction = "right";
 
     } else if ((event.code == "Enter") && (gameState == 1)) {
@@ -112,22 +145,22 @@ function getDirection(event) {
 }
 
 // Draw a single snake block at given location.
-function drawSnakeBlock(context, x, y, blockWidth, blockHeight) {
+function drawSnakeBlock(context, x, y, snake) {
 
     context.fillStyle = "white";
-    context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
+    context.fillRect(x * snake.dimensions.blockWidth, y * snake.dimensions.blockHeight, snake.dimensions.blockWidth, snake.dimensions.blockHeight);
 
     context.strokeStyle = "aqua";
-    context.strokeRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
+    context.strokeRect(x * snake.dimensions.blockWidth, y * snake.dimensions.blockHeight, snake.dimensions.blockWidth, snake.dimensions.blockHeight);
 
 }
 
 // Draw snake of given block dimensions.
-function drawSnake(context, snake, blockWidth, blockHeight) {
+function drawSnake(context, snake) {
 
     for (let i = 0; i < snake.length; i++) {
 
-        drawSnakeBlock(context, snake[i].x, snake[i].y, blockWidth, blockHeight)
+        drawSnakeBlock(context, snake.blocks[i].x, snake.blocks[i].y, snake);
 
     }
 }
@@ -143,11 +176,11 @@ function drawFood(context, x, y, blockWidth, blockHeight) {
 
 }
 
-function checkCollision(x, y, snakeArray) {
+function checkCollision(x, y, snake) {
     
-    for (let i = 0; i < snakeArray.length; i++) {
+    for (let i = 0; i < snake.length; i++) {
 
-        if ((x == snakeArray[i].x) && (y == snakeArray[i].y)) {
+        if ((x == snake.blocks[i].x) && (y == snake.blocks[i].y)) {
 
             return true;
             
@@ -179,16 +212,16 @@ function clearCanvas(context, canvas) {
 
 }
 
-function draw(context, canvas) {
+function draw(context, canvas, snake) {
 
-    clearCanvas(context, canvas)
+    clearCanvas(context, canvas);
 
-    drawSnake(context, snake, blockWidth, blockHeight)
+    drawSnake(context, snake);
 
     drawFood(context, food.x, food.y, blockWidth, blockHeight);
 
-    let snakeHeadX = snake[0].x;
-    let snakeHeadY = snake[0].y;
+    let snakeHeadX = snake.blocks[0].x;
+    let snakeHeadY = snake.blocks[0].y;
 
     if (direction == "up") {
 
@@ -224,12 +257,12 @@ function draw(context, canvas) {
 
     } else {
 
-        snake.pop();
+        snake.blocks.pop();
 
     }
 
     let newHead = { x: snakeHeadX, y: snakeHeadY };
-    snake.unshift(newHead);
+    snake.blocks.unshift(newHead);
     drawScore(score, context, canvas);
 
 }
@@ -300,19 +333,7 @@ function getRandomArbitraryNumber(min, max) {
 
 }
 
-function createSnake(len) {
 
-    let snake = [];
-    
-    for (let i = len - 1; i >= 0; i--) {
-    
-        snake.push({ x: i, y: 0});
-    
-    }
-
-    return snake;
-
- }
 
  function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
 
