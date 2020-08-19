@@ -15,19 +15,46 @@ class Snake {
 
         this.blocks = (function() {
             
-            let ary = [];
+            let blockArray = [];
 
 
             for (let i = this.length - 1; i >= 0; i--) {
             
-                ary.push({ x: i, y: 0 });
+                blockArray.push({ x: i, y: 0 });
             
             }
     
-            return ary;
+            return blockArray;
 
         }).bind(this)();
         
+
+    }
+
+}
+
+
+class foodBlock {
+
+    constructor(dimensions = 10, maxWidth, maxHeight, borderOffset = 5) {
+
+        this.dimensions = {
+
+            blockWidth: dimension,
+            blockHeight: dimension,
+
+        };
+
+        this.position = (function () {
+       
+           return {
+       
+               x: Math.floor(getRandomArbitraryNumber(borderOffset, maxWidth - borderOffset)),
+               y: Math.floor(getRandomArbitraryNumber(borderOffset, maxHeight - borderOffset)),
+           
+            };
+       
+       }).bind(this)();
 
     }
 
