@@ -4,8 +4,8 @@ class Snake {
 
     constructor(length = 4, dimension = 10) {
 
-        this.blocks = []
         this.length = length;
+
         this.dimensions = {
 
             blockWidth: dimension,
@@ -13,17 +13,23 @@ class Snake {
 
         };
 
+        this.blocks = (function() {
+            
+            let ary = [];
+
+
+            for (let i = this.length - 1; i >= 0; i--) {
+            
+                ary.push({ x: i, y: 0 });
+            
+            }
+    
+            return ary;
+
+        }).bind(this)();
+        
+
     }
-
-    initSnake() {
-
-        for (let i = this.length - 1; i >= 0; i--) {
-        
-            this.blocks.push({ x: i, y: 0 });
-        
-        }
-
-    };
 
 }
 
@@ -52,7 +58,6 @@ const TOGGLEOFF = "fa-toggle-off";
 //  A snake is an array of objects.
 //  Each object defines the x and y coordinates of the individual blocks that make up the snake.
 let snake = new Snake(4, 10);
-snake.initSnake();
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
 let food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
@@ -99,7 +104,6 @@ function resetGame(context, canvas) {
     resetDisplay(context, canvas)
     gameState = 0;
     snake = new Snake(4, 10);
-    snake.initSnake();
     direction = "right";
     score = 4;
 
