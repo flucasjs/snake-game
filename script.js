@@ -207,6 +207,7 @@ function drawFood(context, x, y, blockWidth, blockHeight) {
 
 }
 
+// Detect collision of snake against itself.
 function checkCollision(x, y, snake) {
     
     for (let i = 0; i < snake.length; i++) {
@@ -223,12 +224,14 @@ function checkCollision(x, y, snake) {
 
 }
 
+// Detect collision of snake with borders.
 function checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) {
 
     return (snakeHeadX < 0 || snakeHeadY < 0 || snakeHeadX >= blockSpanHorizontal ||  snakeHeadY >= blockSpanVertical)
     
 }
 
+// Display score in bottom left corner.
 function drawScore(score, context, canvas) {
 
     context.fillStyle = "yellow";
@@ -237,12 +240,14 @@ function drawScore(score, context, canvas) {
 
 }
 
+// Clear all drawings on canvas with given context.
 function clearCanvas(context, canvas) {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
 }
 
+// Draw a snake on canvas given the context.
 function draw(context, canvas, snake) {
 
     clearCanvas(context, canvas);
@@ -298,6 +303,7 @@ function draw(context, canvas, snake) {
 
 }
 
+// Show the start screen.
 function displayStart(context) {
 
     context.fillStyle = "gold";
@@ -308,6 +314,7 @@ function displayStart(context) {
 
 }
 
+// Show the game over screen after clear;ing the canvas.
 function displayGameOver(context, canvas) {
 
     clearCanvas(context, canvas);
@@ -319,6 +326,7 @@ function displayGameOver(context, canvas) {
 
 }
 
+// Load a background theme.
 function loadTheme() {
     
     let style = localStorage.getItem("THEME");
@@ -336,6 +344,7 @@ function loadTheme() {
 
 }
 
+// Display a background theme depending on the toggle element.
 function setTheme() {
 
     let element = event.target;
@@ -358,14 +367,14 @@ function setTheme() {
 
 }
 
+// Retruns an arbitrary number between min and max.
 function getRandomArbitraryNumber(min, max) {
 
     return Math.random() * (max - min) + min;
 
 }
 
-
-
+// Create a food object with a random position.
  function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
 
     return {
@@ -376,4 +385,3 @@ function getRandomArbitraryNumber(min, max) {
     };
 
 }
-
