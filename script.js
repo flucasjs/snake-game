@@ -1,64 +1,98 @@
 // -------------------------------------------------- CLASS DEFINITIONS -------------------------------------------------- //
+class Block {
 
-class Snake {
-
-    constructor(length = 4, dimension = 10) {
-
-        this.length = length;
+    constructor(blockDimension = 1, x = 0, y = 0) {
 
         this.dimensions = {
 
-            blockWidth: dimension,
-            blockHeight: dimension,
+            blockWidth: blockDimension,
+            blockHeight: blockDimension,
 
         };
 
-        this.blocks = (function() {
+        this.position = {
+
+            x,
+            y,
+
+        };
+
+    }
+
+}
+
+class Snake {
+
+    constructor(length = 1, blockDimensions = 1) {
+
+        this.blockDimensions = blockDimensions;
+
+        this.blocks = (() => {
             
             let blockArray = [];
 
-
-            for (let i = this.length - 1; i >= 0; i--) {
+            for (let i = length - 1; i >= 0; i--) {
             
-                blockArray.push({ x: i, y: 0 });
+                blockArray.push(new Block(this.blockDimensions, i, 0));
             
             }
     
             return blockArray;
 
-        }).bind(this)();
-        
+        })();
+
+        this.length = this.blocks.length;
+
+        this.head = this.blocks[0]
+
+    }
+
+    set head(block) {
+
+        this.blocks.unshift(block);
+
+    }
+
+    get head() {
+
+        return this.blocks[0];
+
+    }
+
+    set length(value) {
+
+        return;
+
+    }
+
+    get length() {
+        return this.blocks.length;
+    }
+
+    pop() {
+
+        this.blocks.pop();
 
     }
 
 }
 
+class Food {
 
-class foodBlock {
+    constructor(maxWidth = 1, maxHeight = 1, borderOffset = 0) {
 
-    constructor(dimensions = 10, maxWidth, maxHeight, borderOffset = 5) {
-
-        this.dimensions = {
-
-            blockWidth: dimension,
-            blockHeight: dimension,
-
-        };
-
-        this.position = (function () {
-       
-           return {
+        this.position = {
        
                x: Math.floor(getRandomArbitraryNumber(borderOffset, maxWidth - borderOffset)),
                y: Math.floor(getRandomArbitraryNumber(borderOffset, maxHeight - borderOffset)),
            
-            };
-       
-       }).bind(this)();
+        };
 
     }
 
 }
+
+
 
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
@@ -102,7 +136,11 @@ window.addEventListener("load", () => {
 });
 
 // Move the snake based on user input of arrow keys.
-document.addEventListener("keydown", getDirection);
+document.addEventListener("keydown", () => {
+
+    getDirection(event, context, canvas);
+
+});
 
 // Set the background theme whene user clicks on toggle element.
 theme.addEventListener("click", setTheme);
@@ -110,11 +148,11 @@ theme.addEventListener("click", setTheme);
 // -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
 
 // Initializes the game state.
-function startGame(context, canvas, snake) {
+function startGame(context, canvas) {
 
     gameState = 1;
 
-    let interval = setInterval(draw, 45, context, canvas, snake);
+    let interval = setInterval(draw, 45, context, canvas);
 
     return (() => {
 
@@ -145,7 +183,7 @@ function resetDisplay(context, canvas) {
 }
 
 // Set direction based on user input. Reset game if Enter key is pressed.
-function getDirection(event) {
+function getDirection(event, context, canvas) {
 
     if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
 
@@ -165,7 +203,7 @@ function getDirection(event) {
 
     } else if ((event.code == "Enter") && (gameState == 0)) {
 
-        window.game = startGame(context, canvas, snake);
+        window.game = startGame(context, canvas);
         direction = "right";
 
     } else if ((event.code == "Enter") && (gameState == 1)) {
@@ -179,10 +217,10 @@ function getDirection(event) {
 function drawSnakeBlock(context, x, y, snake) {
 
     context.fillStyle = "white";
-    context.fillRect(x * snake.dimensions.blockWidth, y * snake.dimensions.blockHeight, snake.dimensions.blockWidth, snake.dimensions.blockHeight);
+    context.fillRect(x * snake.blockDimensions, y * snake.blockDimensions, snake.blockDimensions, snake.blockDimensions);
 
     context.strokeStyle = "aqua";
-    context.strokeRect(x * snake.dimensions.blockWidth, y * snake.dimensions.blockHeight, snake.dimensions.blockWidth, snake.dimensions.blockHeight);
+    context.strokeRect(x * snake.blockDimensions, y * snake.blockDimensions, snake.blockDimensions, snake.blockDimensions);
 
 }
 
@@ -190,10 +228,11 @@ function drawSnakeBlock(context, x, y, snake) {
 function drawSnake(context, snake) {
 
     for (let i = 0; i < snake.length; i++) {
-
-        drawSnakeBlock(context, snake.blocks[i].x, snake.blocks[i].y, snake);
+        
+        drawSnakeBlock(context, snake.blocks[i].position.x, snake.blocks[i].position.y, snake);
 
     }
+
 }
 
 // Draw food block at given location.
@@ -212,7 +251,7 @@ function checkCollision(x, y, snake) {
     
     for (let i = 0; i < snake.length; i++) {
 
-        if ((x == snake.blocks[i].x) && (y == snake.blocks[i].y)) {
+        if ((x == snake.blocks[i].position.x) && (y == snake.blocks[i].position.y)) {
 
             return true;
             
@@ -248,17 +287,17 @@ function clearCanvas(context, canvas) {
 }
 
 // Draw a snake on canvas given the context.
-function draw(context, canvas, snake) {
+function draw(context, canvas) {
 
     clearCanvas(context, canvas);
 
     drawSnake(context, snake);
-
+    
     drawFood(context, food.x, food.y, blockWidth, blockHeight);
 
-    let snakeHeadX = snake.blocks[0].x;
-    let snakeHeadY = snake.blocks[0].y;
-
+    let snakeHeadX = snake.blocks[0].position.x;
+    let snakeHeadY = snake.blocks[0].position.y;
+    
     if (direction == "up") {
 
         snakeHeadY--;
@@ -288,17 +327,17 @@ function draw(context, canvas, snake) {
     if ((snakeHeadX == food.x) && (snakeHeadY == food.y)) {
 
         food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
-
+        
         score++;
 
     } else {
 
-        snake.blocks.pop();
+        snake.pop();
 
     }
 
-    let newHead = { x: snakeHeadX, y: snakeHeadY };
-    snake.blocks.unshift(newHead);
+    snake.head = new Block(snake.blockDimensions, snakeHeadX, snakeHeadY);
+    
     drawScore(score, context, canvas);
 
 }
