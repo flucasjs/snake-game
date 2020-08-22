@@ -79,13 +79,26 @@ class Snake {
 
 class Food {
 
-    constructor(maxWidth = 1, maxHeight = 1, borderOffset = 0) {
+    constructor(blockDimensions = 1, x = 0, y = 0){
 
         this.position = {
        
-               x: Math.floor(getRandomArbitraryNumber(borderOffset, maxWidth - borderOffset)),
-               y: Math.floor(getRandomArbitraryNumber(borderOffset, maxHeight - borderOffset)),
+               x,
+               y,
            
+        };
+
+        this.block = new Block(blockDimensions, this.position.x, this.position.y)
+
+    }
+
+    randomizePosition(maxHorizontalPosition = 1, maxVerticalPosition = 1, borderOffset = 0) {
+
+        this.position = {
+       
+            x: Math.floor(getRandomArbitraryNumber(borderOffset, maxVerticalPosition - borderOffset)),
+            y: Math.floor(getRandomArbitraryNumber(borderOffset, maxHorizontalPosition - borderOffset)),
+        
         };
 
     }
@@ -121,7 +134,9 @@ const TOGGLEOFF = "fa-toggle-off";
 let snake = new Snake(4, 10);
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
-let food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
+
+let food = new Food(10)
+food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 
 
 
@@ -134,6 +149,8 @@ window.addEventListener("load", () => {
     loadTheme();
 
 });
+
+
 
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
@@ -184,7 +201,7 @@ function resetDisplay(context, canvas) {
 
 // Set direction based on user input. Reset game if Enter key is pressed.
 function getDirection(event, context, canvas) {
-
+    
     if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
 
         direction = "up";
@@ -236,13 +253,13 @@ function drawSnake(context, snake) {
 }
 
 // Draw food block at given location.
-function drawFood(context, x, y, blockWidth, blockHeight) {
+function drawFood(context, food, blockWidth, blockHeight) {
 
     context.fillStyle = "yellow";
-    context.fillRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
+    context.fillRect(food.position.x * blockWidth, food.position.y * blockHeight, blockWidth, blockHeight);
 
     context.strokeStyle = "orange";
-    context.strokeRect(x * blockWidth, y * blockHeight, blockWidth, blockHeight);
+    context.strokeRect(food.position.x * blockWidth, food.position.y * blockHeight, blockWidth, blockHeight);
 
 }
 
@@ -293,7 +310,7 @@ function draw(context, canvas) {
 
     drawSnake(context, snake);
     
-    drawFood(context, food.x, food.y, blockWidth, blockHeight);
+    drawFood(context, food, blockWidth, blockHeight);
 
     let snakeHeadX = snake.blocks[0].position.x;
     let snakeHeadY = snake.blocks[0].position.y;
@@ -324,9 +341,9 @@ function draw(context, canvas) {
 
     }
 
-    if ((snakeHeadX == food.x) && (snakeHeadY == food.y)) {
+    if ((snakeHeadX == food.position.x) && (snakeHeadY == food.position.y)) {
 
-        food = createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, 5);
+        food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
         
         score++;
 
