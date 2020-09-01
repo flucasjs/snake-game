@@ -19,6 +19,16 @@ class Block {
 
     }
 
+    drawBlock(context) {
+
+        context.fillStyle = "white";
+        context.fillRect(this.position.x * this.dimensions.blockWidth, this.position.y * this.dimensions.blockHeight, this.dimensions.blockWidth, this.dimensions.blockHeight);
+
+        context.strokeStyle = "aqua";
+        context.strokeRect(this.position.x * this.dimensions.blockWidth, this.position.y * this.dimensions.blockHeight, this.dimensions.blockWidth, this.dimensions.blockHeight);
+
+    }
+
 }
 
 class Snake {
@@ -72,6 +82,16 @@ class Snake {
     pop() {
 
         this.blocks.pop();
+
+    }
+
+    drawSnake(context, snake) {
+
+        for (let i = 0; i < snake.length; i++) {
+            
+            this.blocks[i].drawBlock(context);
+
+        }
 
     }
 
@@ -136,19 +156,20 @@ let snake = new Snake(4, 10);
 let food = new Food(10)
 food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 
-
+let theme = document.querySelector(".theme-toggle");
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
 window.addEventListener("load", () => {
 
+    theme.classList.add('fas', 'fa-toggle-off');
+    theme.style.fontSize = '30px';
+    theme.style.cursor = 'pointer';
     displayStart(context);
     loadTheme();
 
 });
-
-
 
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
@@ -228,28 +249,6 @@ function getDirection(event, context, canvas) {
     }
 }
 
-// Draw a single snake block at given location.
-function drawSnakeBlock(context, x, y, snake) {
-
-    context.fillStyle = "white";
-    context.fillRect(x * snake.blockDimensions, y * snake.blockDimensions, snake.blockDimensions, snake.blockDimensions);
-
-    context.strokeStyle = "aqua";
-    context.strokeRect(x * snake.blockDimensions, y * snake.blockDimensions, snake.blockDimensions, snake.blockDimensions);
-
-}
-
-// Draw snake of given block dimensions.
-function drawSnake(context, snake) {
-
-    for (let i = 0; i < snake.length; i++) {
-        
-        drawSnakeBlock(context, snake.blocks[i].position.x, snake.blocks[i].position.y, snake);
-
-    }
-
-}
-
 // Draw food block at given location.
 function drawFood(context, food, blockWidth, blockHeight) {
 
@@ -306,7 +305,7 @@ function draw(context, canvas) {
 
     clearCanvas(context, canvas);
 
-    drawSnake(context, snake);
+    snake.drawSnake(context, snake);
     
     drawFood(context, food, blockWidth, blockHeight);
 
