@@ -105,12 +105,10 @@ class Food {
 
 }
 
-
-
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
 // Initialize 2d drawing context for canvas element.
-let canvas = document.getElementById("canvas");
+let canvas = document.querySelector(".snake-game__display");
 let context = canvas.getContext("2d");
 
 // Dimensions
@@ -423,7 +421,7 @@ function setTheme() {
 
 }
 
-// Retruns an arbitrary number between min and max.
+// Returns an arbitrary number between min and max.
 function getRandomArbitraryNumber(min, max) {
 
     return Math.random() * (max - min) + min;

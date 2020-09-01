@@ -10,21 +10,21 @@ body {
     background-color: whitesmoke;
 }
 
-.container {
+.snake-game {
     height: 500x;
     width: 500px;
     margin: 0 auto;
     padding: 25px;
 }
 
-#canvas {
+.snake-game__display {
     background-color: #000;
     padding: 0;
     margin: 0;
     border: 10px outset orange;
 }
 
-#theme {
+.theme-toggle {
     position: absolute;
     top: 20px;
     left: 20px;
@@ -32,10 +32,10 @@ body {
     height: 25px;
 }
 
-#theme i {
+.theme-toggle__icon {
     font-size: 30px;
 }
 
-#theme i:hover {
+.theme-toggle__icon:hover {
     cursor: pointer;
 }
