@@ -31,11 +31,3 @@ body {
     width: 25px;
     height: 25px;
 }
-
-.theme-toggle__icon {
-    font-size: 30px;
-}
-
-.theme-toggle__icon:hover {
-    cursor: pointer;
-}
