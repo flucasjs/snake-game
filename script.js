@@ -1,49 +1,62 @@
 // -------------------------------------------------- CLASS DEFINITIONS -------------------------------------------------- //
 class Block {
 
-    constructor(blockDimension = 1, x = 0, y = 0) {
+    constructor(blockDimension = 1) {
 
-        this.dimensions = {
+        this.blockDimension = blockDimension;
 
-            blockWidth: blockDimension,
-            blockHeight: blockDimension,
+        this.x = 0;
 
-        };
-
-        this.position = {
-
-            x,
-            y,
-
-        };
+        this.y = 0;
 
     }
 
-    drawBlock(context) {
+    drawBlock(context, fill, stroke) {
 
-        context.fillStyle = "white";
-        context.fillRect(this.position.x * this.dimensions.blockWidth, this.position.y * this.dimensions.blockHeight, this.dimensions.blockWidth, this.dimensions.blockHeight);
+        context.fillStyle = fill;
+        context.fillRect(this._x * this.blockDimension, this._y * this.blockDimension, this.blockDimension, this.blockDimension);
 
-        context.strokeStyle = "aqua";
-        context.strokeRect(this.position.x * this.dimensions.blockWidth, this.position.y * this.dimensions.blockHeight, this.dimensions.blockWidth, this.dimensions.blockHeight);
+        context.strokeStyle = stroke;
+        context.strokeRect(this._x * this.blockDimension, this._y * this.blockDimension, this.blockDimension, this.blockDimension);
 
+    }
+
+    get x() {
+        return this._x;
+    }
+
+    get y() {
+        return this._y;
+    }
+
+    set x(value) {
+        this._x = value;
+    }
+
+    set y(value) {
+        this._y = value;
     }
 
 }
 
-class Snake {
+class Snake extends Block {
 
-    constructor(length = 1, blockDimensions = 1) {
+    constructor(blockDimension = 1, length = 1) {
 
-        this.blockDimensions = blockDimensions;
+        super(blockDimension);
 
+        this.blockDimension = blockDimension;
+        
         this.blocks = (() => {
             
             let blockArray = [];
 
             for (let i = length - 1; i >= 0; i--) {
-            
-                blockArray.push(new Block(this.blockDimensions, i, 0));
+
+                let block = new Block(this.blockDimension);
+                block.x = i;
+                block.y = 0;
+                blockArray.push(block);
             
             }
     
@@ -57,10 +70,8 @@ class Snake {
 
     }
 
-    set head(block) {
-
-        this.blocks.unshift(block);
-
+    get length() {
+        return this.blocks.length;
     }
 
     get head() {
@@ -75,8 +86,10 @@ class Snake {
 
     }
 
-    get length() {
-        return this.blocks.length;
+    set head(block) {
+
+        this.blocks.unshift(block);
+
     }
 
     pop() {
@@ -85,11 +98,11 @@ class Snake {
 
     }
 
-    drawSnake(context, snake) {
+    drawSnake(context) {
 
-        for (let i = 0; i < snake.length; i++) {
+        for (let i = this.length - 1; i >= 0; i--) {
             
-            this.blocks[i].drawBlock(context);
+            this.blocks[i].drawBlock(context, "white", "aqua");
 
         }
 
@@ -97,29 +110,50 @@ class Snake {
 
 }
 
-class Food {
+class Food extends Block {
 
-    constructor(blockDimensions = 1, x = 0, y = 0){
+    constructor(blockDimension = 1){
 
-        this.position = {
-       
-               x,
-               y,
-           
-        };
+        super(blockDimension);
 
-        this.block = new Block(blockDimensions, this.position.x, this.position.y)
+        this.block = new Block(blockDimension);
 
     }
 
     randomizePosition(maxHorizontalPosition = 1, maxVerticalPosition = 1, borderOffset = 0) {
 
-        this.position = {
-       
-            x: Math.floor(getRandomArbitraryNumber(borderOffset, maxVerticalPosition - borderOffset)),
-            y: Math.floor(getRandomArbitraryNumber(borderOffset, maxHorizontalPosition - borderOffset)),
-        
-        };
+        this.block.x = Math.floor(getRandomArbitraryNumber(borderOffset, maxVerticalPosition - borderOffset));
+        this.block.y = Math.floor(getRandomArbitraryNumber(borderOffset, maxHorizontalPosition - borderOffset));
+
+    }
+
+    drawFood(context) {
+
+        this.block.drawBlock(context, "yellow", "orange");
+    
+    }
+
+    get x() {
+
+        return this.block.x;
+
+    }
+
+    get y() {
+
+        return this.block.y;
+
+    }
+
+    set x(value) {
+
+        return;
+
+    }
+
+    set y(value) {
+
+        return;
 
     }
 
@@ -149,7 +183,7 @@ const TOGGLEOFF = "fa-toggle-off";
 //  Initialize a snake of 4 blocks.
 //  A snake is an array of objects.
 //  Each object defines the x and y coordinates of the individual blocks that make up the snake.
-let snake = new Snake(4, 10);
+let snake = new Snake(10, 4);
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
 
@@ -204,7 +238,7 @@ function resetGame(context, canvas) {
 
     resetDisplay(context, canvas)
     gameState = 0;
-    snake = new Snake(4, 10);
+    snake = new Snake(10, 4);
     direction = "right";
     score = 4;
 
@@ -265,7 +299,7 @@ function checkCollision(x, y, snake) {
     
     for (let i = 0; i < snake.length; i++) {
 
-        if ((x == snake.blocks[i].position.x) && (y == snake.blocks[i].position.y)) {
+        if ((x == snake.blocks[i].x) && (y == snake.blocks[i].y)) {
 
             return true;
             
@@ -307,10 +341,10 @@ function draw(context, canvas) {
 
     snake.drawSnake(context, snake);
     
-    drawFood(context, food, blockWidth, blockHeight);
+    food.drawFood(context);
 
-    let snakeHeadX = snake.blocks[0].position.x;
-    let snakeHeadY = snake.blocks[0].position.y;
+    let snakeHeadX = snake.blocks[0].x;
+    let snakeHeadY = snake.blocks[0].y;
     
     if (direction == "up") {
 
@@ -338,7 +372,7 @@ function draw(context, canvas) {
 
     }
 
-    if ((snakeHeadX == food.position.x) && (snakeHeadY == food.position.y)) {
+    if ((snakeHeadX == food.x) && (snakeHeadY == food.y)) {
 
         food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
         
@@ -350,7 +384,9 @@ function draw(context, canvas) {
 
     }
 
-    snake.head = new Block(snake.blockDimensions, snakeHeadX, snakeHeadY);
+    snake.head = new Block(snake.blockDimension);
+    snake.head.x = snakeHeadX;
+    snake.head.y = snakeHeadY;
     
     drawScore(score, context, canvas);
 
