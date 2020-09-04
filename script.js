@@ -186,17 +186,18 @@ const TOGGLEOFF = "fa-toggle-off";
 let snake = new Snake(10, 4);
 
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
-
 let food = new Food(10)
 food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 
-let theme = document.querySelector(".theme-toggle");
+// Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
+let userAction = 0;
 
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
 window.addEventListener("load", () => {
 
+    let theme = document.querySelector(".theme-toggle");
     theme.classList.add('fas', 'fa-toggle-off');
     theme.style.fontSize = '30px';
     theme.style.cursor = 'pointer';
@@ -208,6 +209,8 @@ window.addEventListener("load", () => {
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
 
+    // If user entered a keyboard input, wait until next timer interval for new user input.
+    if (userAction) return;
     getDirection(event, context, canvas);
 
 });
@@ -220,9 +223,8 @@ theme.addEventListener("click", setTheme);
 // Initializes the game state.
 function startGame(context, canvas) {
 
-    gameState = 1;
-
     let interval = setInterval(draw, 45, context, canvas);
+    gameState = 1;
 
     return (() => {
 
@@ -255,6 +257,23 @@ function resetDisplay(context, canvas) {
 // Set direction based on user input. Reset game if Enter key is pressed.
 function getDirection(event, context, canvas) {
     
+    if ((event.code == "Enter") && (gameState == 0)) {
+
+        window.game = startGame(context, canvas);
+        direction = "right";
+        return;
+        
+
+    } else if ((event.code == "Enter") && (gameState == 1)) {
+
+        window.game();
+        return;
+
+    }
+
+    // If user enters any movement key, raise userAction flag to prevent further input.
+    userAction = 1;
+    
     if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
 
         direction = "up";
@@ -271,16 +290,8 @@ function getDirection(event, context, canvas) {
 
         direction = "right";
 
-    } else if ((event.code == "Enter") && (gameState == 0)) {
-
-        window.game = startGame(context, canvas);
-        direction = "right";
-
-    } else if ((event.code == "Enter") && (gameState == 1)) {
-
-        window.game();
-
     }
+
 }
 
 // Draw food block at given location.
@@ -389,6 +400,9 @@ function draw(context, canvas) {
     snake.head.y = snakeHeadY;
     
     drawScore(score, context, canvas);
+
+    // User input has been processed. Allow new user input.
+    userAction = 0;
 
 }
 
