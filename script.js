@@ -277,7 +277,8 @@ function getDirection(event, context, canvas) {
     
     // If user enters any movement key, raise userAction flag to prevent further input.
     userAction = 1;
-    
+    let prevDirection = direction;
+
     if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
 
         direction = "up";
@@ -296,8 +297,12 @@ function getDirection(event, context, canvas) {
 
     }
 
-    // Update the canvas for more repsonsive movement after every user input instead of waiting for timer to update canvas.
-    draw(context, canvas);
+    // Bypass timer interval and immediately update canvas if user changes direction for more responsive movement.
+    if (direction != prevDirection) {
+
+        draw(context, canvas);
+
+    }
 
 }
 
