@@ -226,10 +226,19 @@ function startGame(context, canvas) {
     let interval = setInterval(draw, 45, context, canvas);
     gameStarted = 1;
 
-    return (() => {
+    return ((reset) => {
 
-        clearInterval(interval);
-        resetGame(context, canvas);
+        if (reset) {
+
+            clearInterval(interval);
+            resetGame(context, canvas);
+
+        } else {
+
+            displayGameOver(context, canvas);
+
+        }
+        
 
     });
 
@@ -267,7 +276,7 @@ function getDirection(event, context, canvas) {
     
         } else {
     
-            window.game();
+            window.game(1);
     
         }
 
@@ -390,8 +399,7 @@ function draw(context, canvas) {
     // Game Over
     if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
 
-        displayGameOver(context, canvas);
-        gameStarted = 1;
+        window.game(0);
 
     }
 
@@ -471,7 +479,6 @@ function setTheme() {
 
         document.body.style.background = "rgba(0, 0, 0, 0.75)";
         localStorage.setItem("THEME", "dark");
-        
         
     } else {
 
