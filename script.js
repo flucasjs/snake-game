@@ -174,7 +174,7 @@ let blockSpanVertical = canvas.height / blockHeight;
 // Initial parameters for game.
 let score = 4;
 let direction = "right";
-let gameState = 0;
+let gameStarted = 0;
 
 // Visual element used to toggle theme settings.
 const TOGGLEON = "fa-toggle-on";
@@ -224,7 +224,7 @@ theme.addEventListener("click", setTheme);
 function startGame(context, canvas) {
 
     let interval = setInterval(draw, 45, context, canvas);
-    gameState = 1;
+    gameStarted = 1;
 
     return (() => {
 
@@ -239,7 +239,7 @@ function startGame(context, canvas) {
 function resetGame(context, canvas) {
 
     resetDisplay(context, canvas)
-    gameState = 0;
+    gameStarted = 0;
     snake = new Snake(10, 4);
     direction = "right";
     score = 4;
@@ -256,21 +256,25 @@ function resetDisplay(context, canvas) {
 
 // Set direction based on user input. Reset game if Enter key is pressed.
 function getDirection(event, context, canvas) {
+
+    if (event.code == "Enter") {
+
+        if (!gameStarted) {
+
+            window.game = startGame(context, canvas);
+            direction = "right";
+            
     
-    if ((event.code == "Enter") && (gameState == 0)) {
+        } else {
+    
+            window.game();
+    
+        }
 
-        window.game = startGame(context, canvas);
-        direction = "right";
-        return;
-        
-
-    } else if ((event.code == "Enter") && (gameState == 1)) {
-
-        window.game();
         return;
 
     }
-
+    
     // If user enters any movement key, raise userAction flag to prevent further input.
     userAction = 1;
     
@@ -291,6 +295,9 @@ function getDirection(event, context, canvas) {
         direction = "right";
 
     }
+
+    // Update the canvas for more repsonsive movement after every user input instead of waiting for timer to update canvas.
+    draw(context, canvas);
 
 }
 
@@ -379,7 +386,7 @@ function draw(context, canvas) {
     if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
 
         displayGameOver(context, canvas);
-        gameState = 1;
+        gameStarted = 1;
 
     }
 
