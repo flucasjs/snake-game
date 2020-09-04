@@ -192,6 +192,8 @@ food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 // Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
 let userAction = 0;
 
+let wait = 0;
+
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
@@ -280,38 +282,46 @@ function getDirection(event, context, canvas) {
     
         }
 
+        wait = 0;
         return;
 
     }
+
+    if (!wait) {
+
+        // If user enters any movement key, raise userAction flag to prevent further input.
+        userAction = 1;
+
+        let prevDirection = direction;
+
+        if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
+
+            direction = "up";
+
+        } else if ((event.code == "ArrowDown" || event.code == "KeyS") && (direction != "up")) {
+
+            direction = "down";
+
+        } else if ((event.code == "ArrowLeft" || event.code == "KeyA") && (direction != "right")) {
+
+            direction = "left";
+
+        } else if ((event.code == "ArrowRight" || event.code == "KeyD") && (direction != "left")) {
+
+            direction = "right";
+
+        }
+
+        // Bypass timer interval and immediately update canvas if user changes direction for more responsive movement.
+        if (direction != prevDirection) {
+
+            draw(context, canvas);
+
+        }
+
+    }
     
-    // If user enters any movement key, raise userAction flag to prevent further input.
-    userAction = 1;
-    let prevDirection = direction;
-
-    if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
-
-        direction = "up";
-
-    } else if ((event.code == "ArrowDown" || event.code == "KeyS") && (direction != "up")) {
-
-        direction = "down";
-
-    } else if ((event.code == "ArrowLeft" || event.code == "KeyA") && (direction != "right")) {
-
-        direction = "left";
-
-    } else if ((event.code == "ArrowRight" || event.code == "KeyD") && (direction != "left")) {
-
-        direction = "right";
-
-    }
-
-    // Bypass timer interval and immediately update canvas if user changes direction for more responsive movement.
-    if (direction != prevDirection) {
-
-        draw(context, canvas);
-
-    }
+    
 
 }
 
@@ -400,6 +410,9 @@ function draw(context, canvas) {
     if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
 
         window.game(0);
+        wait = 1;
+        userAction = 0;
+        return;
 
     }
 
