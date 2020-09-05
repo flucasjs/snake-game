@@ -239,7 +239,7 @@ food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 // Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
 let userAction = 0;
 
-let wait = 0;
+let gameEnded = 0;
 
 let theme = document.querySelector(".theme-toggle");
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
@@ -258,7 +258,7 @@ window.addEventListener("load", () => {
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
 
-    // If user entered a keyboard input, wait until next timer interval for new user input.
+    // If user entered a keyboard input, gameEnded until next timer interval for new user input.
     if (userAction) return;
     getDirection(event, context, canvas);
 
@@ -274,6 +274,7 @@ function startGame(context, canvas) {
 
     let interval = setInterval(draw, 45, context, canvas);
     gameStarted = 1;
+    gameEnded = 0;
 
     return ((reset) => {
 
@@ -288,7 +289,6 @@ function startGame(context, canvas) {
 
         }
         
-
     });
 
 }
@@ -298,6 +298,7 @@ function resetGame(context, canvas) {
 
     resetDisplay(context, canvas)
     gameStarted = 0;
+    gameEnded = 1;
     snake = new Snake(10, 4);
     direction = "right";
     score = 4;
@@ -324,17 +325,16 @@ function getDirection(event, context, canvas) {
             
     
         } else {
-    
+
             window.game(1);
     
         }
 
-        wait = 0;
         return;
 
     }
 
-    if (!wait) {
+    if (!gameEnded) {
 
         // If user enters any movement key, raise userAction flag to prevent further input.
         userAction = 1;
@@ -457,7 +457,7 @@ function draw(context, canvas) {
     if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
 
         window.game(0);
-        wait = 1;
+        gameEnded = 1;
         userAction = 0;
         return;
 
