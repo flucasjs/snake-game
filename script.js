@@ -1,15 +1,17 @@
 // -------------------------------------------------- CLASS DEFINITIONS -------------------------------------------------- //
 class Block {
 
-    constructor(blockDimension = 1) {
+    constructor(blockDimension = 1, x = 0, y = 0) {
 
         this.blockDimension = blockDimension;
 
-        this.x = 0;
+        this.x = x;
 
-        this.y = 0;
+        this.y = y;
 
     }
+
+    // --------------- Methods --------------- //
 
     drawBlock(context, fill, stroke) {
 
@@ -20,6 +22,8 @@ class Block {
         context.strokeRect(this._x * this.blockDimension, this._y * this.blockDimension, this.blockDimension, this.blockDimension);
 
     }
+
+    // ----------- Getters/Setters ----------- //
 
     get x() {
         return this._x;
@@ -70,27 +74,7 @@ class Snake extends Block {
 
     }
 
-    get length() {
-        return this.blocks.length;
-    }
-
-    get head() {
-
-        return this.blocks[0];
-
-    }
-
-    set length(value) {
-
-        return;
-
-    }
-
-    set head(block) {
-
-        this.blocks.unshift(block);
-
-    }
+    // --------------- Methods --------------- //
 
     pop() {
 
@@ -108,6 +92,49 @@ class Snake extends Block {
 
     }
 
+     // ----------- Getters/Setters ----------- //
+
+    set length(value) {
+
+        this._length = value;
+
+        this._blocks = (() => {
+            
+            let blockArray = [];
+
+            for (let i = this._length - 1; i >= 0; i--) {
+
+                let block = new Block(this.blockDimension);
+                block.x = i;
+                block.y = 0;
+                blockArray.push(block);
+            
+            }
+    
+            return blockArray;
+
+        })();
+
+    }
+
+    set head(block) {
+
+        this.blocks.unshift(block);
+
+    }
+
+    get length() {
+
+        return this.blocks.length;
+
+    }
+
+    get head() {
+
+        return this.blocks[0];
+
+    }
+
 }
 
 class Food extends Block {
@@ -119,6 +146,8 @@ class Food extends Block {
         this.block = new Block(blockDimension);
 
     }
+
+    // --------------- Methods --------------- //
 
     randomizePosition(maxHorizontalPosition = 1, maxVerticalPosition = 1, borderOffset = 0) {
 
@@ -133,30 +162,48 @@ class Food extends Block {
     
     }
 
-    get x() {
-
-        return this.block.x;
-
-    }
-
-    get y() {
-
-        return this.block.y;
+     // ----------- Getters/Setters ----------- //
+    
+    set block(blockObj) {
+        
+        this._block = blockObj;
 
     }
 
     set x(value) {
 
-        return;
+        this._x = value;
+
+        this._block = new Block(this.blockDimension, this._y, this._x);
 
     }
 
     set y(value) {
 
-        return;
+        this._y = value;
+
+        this._block = new Block(this.blockDimension, this._y, this._x);
 
     }
 
+    get block() {
+
+        return this._block;
+
+    }
+
+    get x() {
+
+        return this._block.x;
+
+    }
+
+    get y() {
+
+        return this._block.y;
+
+    }
+    
 }
 
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
@@ -194,12 +241,12 @@ let userAction = 0;
 
 let wait = 0;
 
+let theme = document.querySelector(".theme-toggle");
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
 window.addEventListener("load", () => {
 
-    let theme = document.querySelector(".theme-toggle");
     theme.classList.add('fas', 'fa-toggle-off');
     theme.style.fontSize = '30px';
     theme.style.cursor = 'pointer';
