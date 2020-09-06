@@ -222,6 +222,8 @@ let blockSpanVertical = canvas.height / blockHeight;
 let score = 4;
 let direction = "right";
 let gameStarted = 0;
+let gameEnded = 0;
+let gamePaused = 0;
 
 // Visual element used to toggle theme settings.
 const TOGGLEON = "fa-toggle-on";
@@ -239,9 +241,9 @@ food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 // Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
 let userAction = 0;
 
-let gameEnded = 0;
-
+// Selector for toggle icon that allows user to select light or dark theme.
 let theme = document.querySelector(".theme-toggle");
+
 // -------------------------------------------------- EVENT LISTENERS -------------------------------------------------- //
 
 // Initialize the game and background theme.
@@ -275,17 +277,23 @@ function startGame(context, canvas) {
     let interval = setInterval(draw, 45, context, canvas);
     gameStarted = 1;
     gameEnded = 0;
+    gamePaused = 0;
 
-    return ((reset) => {
+    // 0 for gameover, 1 for reset, 2 for pause.
+    return ((state) => {
 
-        if (reset) {
+        if (state == 1) {
 
             clearInterval(interval);
             resetGame(context, canvas);
 
-        } else {
+        } else  if (state == 0) {
 
             displayGameOver(context, canvas);
+
+        } else if (state == 2) {
+
+            displayGamePaused(context, canvas);
 
         }
         
@@ -298,6 +306,7 @@ function resetGame(context, canvas) {
 
     resetDisplay(context, canvas)
     gameStarted = 0;
+    gamePaused = 0;
     gameEnded = 1;
     snake = new Snake(10, 4);
     direction = "right";
@@ -316,25 +325,54 @@ function resetDisplay(context, canvas) {
 // Set direction based on user input. Reset game if Enter key is pressed.
 function getDirection(event, context, canvas) {
 
+    if (gamePaused) {
+        
+        if (event.code == 'Enter') {
+
+            // Paused Game. Resume the game.
+            resumeGame();
+    
+        } else if (event.code == 'KeyN') {
+
+            // Paused Game. Restart the game.
+            window.game(1);
+
+        }
+
+        return;
+
+    }
+    
+
     if (event.code == "Enter") {
 
         if (!gameStarted) {
 
+            // Nonactive Game. Start the Game.
             window.game = startGame(context, canvas);
             direction = "right";
             
-    
         } else {
 
-            window.game(1);
-    
+            if (!gameEnded) {
+
+                //Active Game. Pause the game.
+                window.game(2);
+
+            } else {
+
+                // Game Over. Reset the game.
+                window.game(1);
+
+            }
+            
         }
 
         return;
 
     }
 
-    if (!gameEnded) {
+    if (!(gameEnded || gamePaused)) {
 
         // If user enters any movement key, raise userAction flag to prevent further input.
         userAction = 1;
@@ -368,8 +406,6 @@ function getDirection(event, context, canvas) {
 
     }
     
-    
-
 }
 
 // Draw food block at given location.
@@ -425,6 +461,8 @@ function clearCanvas(context, canvas) {
 
 // Draw a snake on canvas given the context.
 function draw(context, canvas) {
+
+    if (gamePaused) { return; }
 
     clearCanvas(context, canvas);
 
@@ -497,7 +535,7 @@ function displayStart(context) {
 
 }
 
-// Show the game over screen after clear;ing the canvas.
+// Show the game over screen after clearing the canvas.
 function displayGameOver(context, canvas) {
 
     clearCanvas(context, canvas);
@@ -506,6 +544,28 @@ function displayGameOver(context, canvas) {
     context.fillText("Game Over", 135, 220);
     context.font = "24px Verdanna";
     context.fillText(`Press "Enter" to try again`, 125, 300);
+
+}
+
+// Show the pause screen after clearing the canvas.
+function displayGamePaused(context, canvas) {
+
+    clearCanvas(context, canvas);
+    
+    context.fillStyle = "gold";
+    context.font = "48px Verdanna";
+    context.fillText("Game Paused", 120, 220);
+    context.font = "24px Verdanna";
+    context.fillText(`Press "Enter" to resume or 'n' to reset`, 75, 300);
+
+    gamePaused = 1;
+
+}
+
+// Resets the gamePaused flag which allows draw function to continue rendering.
+function resumeGame() {
+
+    gamePaused = 0;
 
 }
 
