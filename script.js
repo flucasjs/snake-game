@@ -206,6 +206,107 @@ class Food extends Block {
     
 }
 
+class Game {
+
+    constructor(context, canvas) {
+
+        this.context = context;
+        this.canvas = canvas;
+        //this.snake = new Snake(10, 4);
+        //this.food = new Food(10)
+        this.gameStarted = 0;
+        this.gameEnded = 0;
+        this.gamePaused = 0;
+        this.score = 4;
+        this.direction = "right";
+    
+    }
+
+    startGame() {
+
+        this.interval = setInterval(draw, 45, this.context, this.canvas);
+        this.gameStarted = 1;
+    
+    }
+
+    clearCanvas() {
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    }
+
+    displayGameOver() {
+
+        this.context.fillStyle = "gold";
+        this.context.font = "48px Verdanna";
+        this.context.fillText("Game Over", 135, 220);
+        this.context.font = "24px Verdanna";
+        this.context.fillText(`Press "Enter" to try again`, 125, 300);
+
+    }
+
+    displayGamePaused() {
+    
+        this.context.fillStyle = "gold";
+        this.context.font = "48px Verdanna";
+        this.context.fillText("Game Paused", 120, 220);
+        this.context.font = "24px Verdanna";
+        this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 75, 300);
+    
+    }
+
+    resetDisplay() {
+
+        clearCanvas(context, canvas);
+        displayStart(context);
+    
+    }
+
+    endGame() {
+
+        clearCanvas();
+        displayGameOver();
+        this.gameEnded = 1;
+        
+    }
+
+    pauseGame() {
+
+        clearCanvas();
+        displayGamePaused();
+        this.gamePaused = 1;    
+
+    }
+
+    resumeGame() {
+
+        this.gamePaused = 0;
+    
+    }
+
+    resetGame() {
+
+       clearInterval(this.interval);
+       clearCanvas();
+       resetProps();
+       displayStart();
+
+    }
+
+    resetProps() {
+
+       this.gameStarted = 0;
+       this.gamePaused = 0;
+       this.gameEnded = 0;
+       //this.snake.reset();
+       //this.food.randomizePosition();
+       this.direction = "right";
+       this.score = 4;
+
+    }
+ 
+}
+
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
 
 // Initialize 2d drawing context for canvas element.
@@ -224,6 +325,8 @@ let direction = "right";
 let gameStarted = 0;
 let gameEnded = 0;
 let gamePaused = 0;
+
+let game = new Game(context, canvas);
 
 // Visual element used to toggle theme settings.
 const TOGGLEON = "fa-toggle-on";
