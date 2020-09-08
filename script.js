@@ -319,6 +319,22 @@ class Game {
     
     }
 
+    checkOutOfBounds() {
+
+        return (this.snake.head.x < 0 || this.snake.head.y < 0 || this.snake.head.x >= this.blockSpanHorizontal || this.snake.head.y >= this.blockSpanVertical);
+
+    }
+
+    checkCollision() {
+
+        for (let block of this.snake.blocks) {
+
+            return ((this.snake.head.x == block.x) && (this.snake.head.y == block.y));
+
+        }
+
+    }
+
     render() {
 
         if (this.gamePaused) { return; }
@@ -365,7 +381,6 @@ class Game {
         if ((snakeHeadX == this.food.x) && (snakeHeadY == this.food.y)) {
     
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
-            
             this.score++;
     
         } else {
@@ -602,17 +617,11 @@ function drawFood(context, food, blockWidth, blockHeight) {
 // Detect collision of snake against itself.
 function checkCollision(x, y, snake) {
     
-    for (let i = 0; i < snake.length; i++) {
+    for (let block of snake.blocks) {
 
-        if ((x == snake.blocks[i].x) && (y == snake.blocks[i].y)) {
-
-            return true;
-            
-        }
+        return ((x == block.x) && (y == block.y));
 
     }
-
-    return false;
 
 }
 
