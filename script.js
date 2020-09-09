@@ -44,33 +44,59 @@ class Block {
 
 class Snake extends Block {
 
-    constructor(blockDimension = 1, length = 1) {
+    constructor(blockDimensions = 1, length = 1, initialDirection = "ArrowRight") {
 
-        super(blockDimension);
+        super(blockDimensions);
 
-        this.blockDimension = blockDimension;
+        this.blockDimensions = blockDimensions;
+        this.length = length;
+        this.direction = initialDirection;
         
         this.blocks = (() => {
-            
+
             let blockArray = [];
 
-            for (let i = length - 1; i >= 0; i--) {
+            for (let i = this.length - 1; i >= 0; i--) {
 
                 let block = new Block(this.blockDimension);
                 block.x = i;
                 block.y = 0;
                 blockArray.push(block);
-            
+
             }
-    
+
             return blockArray;
 
         })();
 
-        this.length = this.blocks.length;
+        this.head = this.blocks[0];
 
-        this.head = this.blocks[0]
+        this.nextHead = (() => {
 
+            let nextHead = new Block(this.blockDimensions, this.snake.head.x, this.snake.head.y);
+
+            if (this.direction == "up") {
+
+                nextHead.y--;
+
+            } else if (this.direction.y == "down") {
+
+                nextHead.y++;
+
+            } else if (this.direction == "left") {
+
+                nextHead.x--;
+
+            } else if (this.direction == "right") {
+
+                nextHead.x++;
+
+            }
+
+            return nextHead;
+
+        });
+        
     }
 
     // --------------- Snake Methods --------------- //
@@ -81,24 +107,101 @@ class Snake extends Block {
 
     }
 
+    unshift(value) {
+
+        this.blocks.unshift(value);
+
+    }
+
     drawSnake(context) {
 
         for (let i = this.length - 1; i >= 0; i--) {
-            
+
             this.blocks[i].drawBlock(context, "white", "aqua");
 
         }
 
     }
 
-     // ----------- Snake Getters/Setters ----------- //
+    boundsCollision(totalHorizontalBlocks, totalVerticalBlocks) {
+
+        return (this.nextHead.x < 0 || this.nextHead.y < 0 || this.nextHead.x >= totalHorizontalBlocks || this.nextHead.y >= totalVerticalBlocks);
+
+    }
+
+    selfCollision() {
+
+        for (let block of this.blocks) {
+
+            return ((this.nextHead.x == block.x) && (this.nextHead.y == block.y));
+
+        }
+
+    }
+
+    headCollision(totalHorizontalBlocks, totalVerticalBlocks) {
+
+        this.nextHead = (() => {
+
+            let nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
+
+            if (this.direction == "up") {
+
+                nextHead.y--;
+
+            } else if (this.direction == "down") {
+
+                nextHead.y++;
+
+            } else if (this.direction == "left") {
+
+                nextHead.x--;
+
+            } else if (this.direction == "right") {
+
+                nextHead.x++;
+
+            }
+
+            return nextHead;
+
+        })();
+
+        return (this.selfCollision() || this.boundsCollision(totalHorizontalBlocks, totalVerticalBlocks));
+
+    }
+
+
+    // ----------- Snake Getters/Setters ----------- //
+
+    set direction(code) {
+
+            if ((code == "ArrowUp" || code == "KeyW") && (this._direction != "down")) {
+
+                this._direction = "up";
+
+            } else if ((code == "ArrowDown" || code == "KeyS") && (this._direction != "up")) {
+
+                this._direction = "down";
+
+            } else if ((code == "ArrowLeft" || code == "KeyA") && (this._direction != "right")) {
+
+                this._direction = "left";
+
+            } else if ((code == "ArrowRight" || code == "KeyD") && (this._direction != "left")) {
+
+                this._direction = "right";
+
+            }
+
+    }
 
     set length(value) {
 
         this._length = value;
 
-        this._blocks = (() => {
-            
+        this.blocks = (() => {
+
             let blockArray = [];
 
             for (let i = this._length - 1; i >= 0; i--) {
@@ -107,9 +210,9 @@ class Snake extends Block {
                 block.x = i;
                 block.y = 0;
                 blockArray.push(block);
-            
+
             }
-    
+
             return blockArray;
 
         })();
@@ -119,6 +222,12 @@ class Snake extends Block {
     set head(block) {
 
         this.blocks.unshift(block);
+
+    }
+
+    get direction() {
+
+        return this._direction;
 
     }
 
@@ -138,7 +247,7 @@ class Snake extends Block {
 
 class Food extends Block {
 
-    constructor(blockDimension = 1){
+    constructor(blockDimension = 1) {
 
         super(blockDimension);
 
@@ -158,13 +267,13 @@ class Food extends Block {
     drawFood(context) {
 
         this.block.drawBlock(context, "yellow", "orange");
-    
+
     }
 
-     // ----------- Food Getters/Setters ----------- //
-    
+    // ----------- Food Getters/Setters ----------- //
+
     set block(blockObj) {
-        
+
         this._block = blockObj;
 
     }
@@ -202,7 +311,7 @@ class Food extends Block {
         return this._block.y;
 
     }
-    
+
 }
 
 class Game {
@@ -222,22 +331,32 @@ class Game {
         this.gameStarted = 0;
         this.gameEnded = 0;
         this.gamePaused = 0;
-        this.userAction = 0;
+        this.wait = 0;
         this.score = 4;
         this.direction = "right";
-        
+
     }
 
     startGame() {
 
         this.interval = setInterval(draw, 45, this.context, this.canvas);
         this.gameStarted = 1;
-    
+
     }
 
     clearCanvas() {
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    }
+
+    displayStart() {
+
+       this.context.fillStyle = "gold";
+       this.context.font = "48px Verdanna";
+       this.context.fillText("Snake Game", 130, 220);
+       this.context.font = "24px Verdanna";
+       this.context.fillText(`Press "Enter" to start`, 152, 300);
     
     }
 
@@ -252,62 +371,62 @@ class Game {
     }
 
     displayGamePaused() {
-    
+
         this.context.fillStyle = "gold";
         this.context.font = "48px Verdanna";
         this.context.fillText("Game Paused", 120, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 75, 300);
-    
+
     }
 
     resetDisplay() {
 
-        clearCanvas(context, canvas);
-        displayStart(context);
-    
+        this.clearCanvas();
+        this.displayStart();
+
     }
 
     endGame() {
 
-        clearCanvas();
-        displayGameOver();
+        this.clearCanvas();
+        this.displayGameOver();
         this.gameEnded = 1;
-        
+
     }
 
     pauseGame() {
 
-        clearCanvas();
-        displayGamePaused();
-        this.gamePaused = 1;    
+        this.clearCanvas();
+        this.displayGamePaused();
+        this.gamePaused = 1;
 
     }
 
     resumeGame() {
 
         this.gamePaused = 0;
-    
+
     }
 
     resetGame() {
 
-       clearInterval(this.interval);
-       clearCanvas();
-       resetProps();
-       displayStart();
+       this.clearInterval(this.interval);
+       this.clearCanvas();
+       this.resetProps();
+       this.displayStart();
 
     }
 
     resetProps() {
 
-       this.gameStarted = 0;
-       this.gamePaused = 0;
-       this.gameEnded = 0;
-       this.snake.reset();
-       this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
-       this.direction = "right";
-       this.score = 4;
+        this.gameStarted = 0;
+        this.gamePaused = 0;
+        this.gameEnded = 0;
+        this.snake.reset();
+        this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
+        this.direction = "right";
+        this.score = 4;
 
     }
 
@@ -316,88 +435,119 @@ class Game {
         this.context.fillStyle = "yellow";
         this.context.font = "10px Verdana";
         this.context.fillText(`Score: ${this.score}`, this.borderOffset, this.canvas.height - this.borderOffset);
-    
-    }
-
-    checkOutOfBounds() {
-
-        return (this.snake.head.x < 0 || this.snake.head.y < 0 || this.snake.head.x >= this.blockSpanHorizontal || this.snake.head.y >= this.blockSpanVertical);
 
     }
 
-    checkCollision() {
+   
 
-        for (let block of this.snake.blocks) {
+    resolvePausedGame(event) {
 
-            return ((this.snake.head.x == block.x) && (this.snake.head.y == block.y));
+        if (event.code == 'Enter') {
+
+            // Paused Game. Resume the game.
+            this.resumeGame();
+
+        } else if (event.code == 'KeyN') {
+
+            // Paused Game. Restart the game.
+            this.resetGame();
 
         }
 
     }
+
+    handleEnterKey() {
+
+        if (!this.gameStarted) {
+
+            // Nonactive Game. Start the Game.
+            this.startGame();
+            this.direction = "right";
+
+        } else {
+
+            if (!this.gameEnded) {
+
+                //Active Game. Pause the game.
+                this.pauseGame();
+
+            } else {
+
+                // Game Over. Reset the game.
+                this.resetGame();
+
+            }
+
+        }
+
+    }
+
+    getNextHead() {
+
+        this.snake.nextHead = new Block(this.blockDimensions, this.snake.head.x, this.snake.head.y)
+
+        if (this.direction == "up") {
+
+            this.snake.nextHead.y--;
+
+        } else if (this.direction.y == "down") {
+
+            this.snake.nextHead.y++;
+
+        } else if (this.direction == "left") {
+
+            this.snake.nextHead.x--;
+
+        } else if (this.direction == "right") {
+
+            this.snake.nextHead.x++;
+
+        }
+
+    }
+
+    
 
     render() {
 
         if (this.gamePaused) { return; }
-    
-        clearCanvas();
-    
+
+        this.clearCanvas();
+
         this.snake.drawSnake(this.context);
-        
+
         this.food.drawFood(this.context);
-    
-        let snakeHeadX = this.snake.head.x
-        let snakeHeadY = this.snake.head.y;
-        
-        // ToDo: Add direction input to class;
-        if (this.direction == "up") {
-    
-            snakeHeadY--;
-    
-        } else if (this.direction == "down") {
-    
-            snakeHeadY++;
-    
-        } else if (this.direction == "left") {
-    
-            snakeHeadX--;
-    
-        } else if (this.direction == "right") {
-    
-            snakeHeadX++;
-    
-        }
-    
-        // ToDo: Add collision detection methods to class.
+
+        this.getNextHead();
+
         // Game Over
-        if (checkOutOfBounds(snakeHeadX, snakeHeadY, this.blockSpanHorizontal, this.blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, this.snake)) {
-    
-            window.game(0);
-            this.gameEnded = 1;
-            this.userAction = 0;
+        if (this.headCollision()) {
+
+            this.endGame();
             return;
-    
+
         }
-    
-        if ((snakeHeadX == this.food.x) && (snakeHeadY == this.food.y)) {
-    
+
+        if ((this.nextHead.x == this.food.x) && (this.nextHead.y == this.food.y)) {
+
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
-    
+
         } else {
-    
+
             this.snake.pop();
-    
+
         }
-    
-        this.snake.head = new Block(snake.blockDimension, snakeHeadX, snakeHeadY);
-        
+
+        this.snake.head = this.nextHead;
+
         drawScore();
-    
+
         // User input has been processed. Allow new user input.
-        this.userAction = 0;
-    
+        this.wait = 0;
+
     }
- 
+
 }
 
 // -------------------------------------------------- GLOBAL VARIABLES -------------------------------------------------- //
@@ -414,7 +564,7 @@ let blockSpanVertical = canvas.height / blockHeight;
 
 // Initial parameters for game.
 let score = 4;
-let direction = "right";
+let direction = "ArrowRight";
 let gameStarted = 0;
 let gameEnded = 0;
 let gamePaused = 0;
@@ -428,14 +578,13 @@ const TOGGLEOFF = "fa-toggle-off";
 //  Initialize a snake of 4 blocks.
 //  A snake is an array of objects.
 //  Each object defines the x and y coordinates of the individual blocks that make up the snake.
-let snake = new Snake(10, 4);
-
+let snake = new Snake(10, 4, direction);
 // Randomize food block location at least 5 blocks from edges to minimize difficulty.
 let food = new Food(10)
 food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
 
 // Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
-let userAction = 0;
+let wait = 0;
 
 // Selector for toggle icon that allows user to select light or dark theme.
 let theme = document.querySelector(".theme-toggle");
@@ -448,6 +597,7 @@ window.addEventListener("load", () => {
     theme.classList.add('fas', 'fa-toggle-off');
     theme.style.fontSize = '30px';
     theme.style.cursor = 'pointer';
+    
     displayStart(context);
     loadTheme();
 
@@ -456,8 +606,8 @@ window.addEventListener("load", () => {
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
 
-    // If user entered a keyboard input, gameEnded until next timer interval for new user input.
-    if (userAction) return;
+    // If user entered a keyboard input, wait until next timer interval for new user input.
+    if (wait) return;
     getDirection(event, context, canvas);
 
 });
@@ -483,7 +633,7 @@ function startGame(context, canvas) {
             clearInterval(interval);
             resetGame(context, canvas);
 
-        } else  if (state == 0) {
+        } else if (state == 0) {
 
             displayGameOver(context, canvas);
 
@@ -492,7 +642,7 @@ function startGame(context, canvas) {
             displayGamePaused(context, canvas);
 
         }
-        
+
     });
 
 }
@@ -522,12 +672,12 @@ function resetDisplay(context, canvas) {
 function getDirection(event, context, canvas) {
 
     if (gamePaused) {
-        
+
         if (event.code == 'Enter') {
 
             // Paused Game. Resume the game.
             resumeGame();
-    
+
         } else if (event.code == 'KeyN') {
 
             // Paused Game. Restart the game.
@@ -538,15 +688,15 @@ function getDirection(event, context, canvas) {
         return;
 
     }
-    
+
     if (event.code == "Enter") {
 
         if (!gameStarted) {
 
             // Nonactive Game. Start the Game.
             window.game = startGame(context, canvas);
-            direction = "right";
-            
+            snake.direction = "right";
+
         } else {
 
             if (!gameEnded) {
@@ -560,7 +710,7 @@ function getDirection(event, context, canvas) {
                 window.game(1);
 
             }
-            
+
         }
 
         return;
@@ -569,38 +719,20 @@ function getDirection(event, context, canvas) {
 
     if (!(gameEnded || gamePaused)) {
 
-        // If user enters any movement key, raise userAction flag to prevent further input.
-        userAction = 1;
-
-        let prevDirection = direction;
-
-        if ((event.code == "ArrowUp" || event.code == "KeyW") && (direction != "down")) {
-
-            direction = "up";
-
-        } else if ((event.code == "ArrowDown" || event.code == "KeyS") && (direction != "up")) {
-
-            direction = "down";
-
-        } else if ((event.code == "ArrowLeft" || event.code == "KeyA") && (direction != "right")) {
-
-            direction = "left";
-
-        } else if ((event.code == "ArrowRight" || event.code == "KeyD") && (direction != "left")) {
-
-            direction = "right";
-
-        }
+        // If user enters any movement key, raise wait flag to prevent further input.
+        wait = 1;
+        let prevDirection = snake.direction;
+        snake.direction = event.code;
 
         // Bypass timer interval and immediately update canvas if user changes direction for more responsive movement.
-        if (direction != prevDirection) {
+        if (snake.direction != prevDirection) {
 
             draw(context, canvas);
 
         }
 
     }
-    
+
 }
 
 // Draw food block at given location.
@@ -616,7 +748,7 @@ function drawFood(context, food, blockWidth, blockHeight) {
 
 // Detect collision of snake against itself.
 function checkCollision(x, y, snake) {
-    
+
     for (let block of snake.blocks) {
 
         return ((x == block.x) && (y == block.y));
@@ -628,8 +760,8 @@ function checkCollision(x, y, snake) {
 // Detect collision of snake with borders.
 function checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) {
 
-    return (snakeHeadX < 0 || snakeHeadY < 0 || snakeHeadX >= blockSpanHorizontal ||  snakeHeadY >= blockSpanVertical)
-    
+    return (snakeHeadX < 0 || snakeHeadY < 0 || snakeHeadX >= blockSpanHorizontal || snakeHeadY >= blockSpanVertical)
+
 }
 
 // Display score in bottom left corner.
@@ -656,44 +788,22 @@ function draw(context, canvas) {
     clearCanvas(context, canvas);
 
     snake.drawSnake(context);
-    
+
     food.drawFood(context);
 
-    let snakeHeadX = snake.head.x;
-    let snakeHeadY = snake.head.y;
-    
-    if (direction == "up") {
-
-        snakeHeadY--;
-
-    } else if (direction == "down") {
-
-        snakeHeadY++;
-
-    } else if (direction == "left") {
-
-        snakeHeadX--;
-
-    } else if (direction == "right") {
-
-        snakeHeadX++;
-
-    }
-
     // Game Over
-    if (checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) || checkCollision(snakeHeadX, snakeHeadY, snake)) {
+    if (snake.headCollision(blockSpanHorizontal, blockSpanVertical)) {
 
         window.game(0);
         gameEnded = 1;
-        userAction = 0;
+        wait = 0;
         return;
 
     }
 
-    if ((snakeHeadX == food.x) && (snakeHeadY == food.y)) {
+    if ((snake.nextHead.x == food.x) && (snake.nextHead.y == food.y)) {
 
         food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
-        
         score++;
 
     } else {
@@ -702,12 +812,12 @@ function draw(context, canvas) {
 
     }
 
-    snake.head = new Block(snake.blockDimension, snakeHeadX, snakeHeadY);
-    
+    snake.unshift(snake.nextHead);
+
     drawScore(score, context, canvas);
 
     // User input has been processed. Allow new user input.
-    userAction = 0;
+    wait = 0;
 
 }
 
@@ -738,7 +848,7 @@ function displayGameOver(context, canvas) {
 function displayGamePaused(context, canvas) {
 
     clearCanvas(context, canvas);
-    
+
     context.fillStyle = "gold";
     context.font = "48px Verdanna";
     context.fillText("Game Paused", 120, 220);
@@ -758,7 +868,7 @@ function resumeGame() {
 
 // Load a background theme.
 function loadTheme() {
-    
+
     let style = localStorage.getItem("THEME");
 
     if (style == "dark") {
@@ -786,7 +896,7 @@ function setTheme() {
 
         document.body.style.background = "rgba(0, 0, 0, 0.75)";
         localStorage.setItem("THEME", "dark");
-        
+
     } else {
 
         document.body.style.background = "whitesmoke";
@@ -804,13 +914,13 @@ function getRandomArbitraryNumber(min, max) {
 }
 
 // Create a food object with a random position.
- function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
+function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
 
     return {
 
         x: Math.floor(getRandomArbitraryNumber(5, blockSpanHorizontal - borderOffset)),
         y: Math.floor(getRandomArbitraryNumber(5, blockSpanVertical - borderOffset)),
-    
+
     };
 
 }
