@@ -628,14 +628,14 @@ function startGame(context, canvas) {
     // 0 for gameover, 1 for reset, 2 for pause.
     return ((state) => {
 
-        if (state == 1) {
+        if (state == 0) {
+
+            displayGameOver(context, canvas);
+
+        } else if (state == 1) {
 
             clearInterval(interval);
             resetGame(context, canvas);
-
-        } else if (state == 0) {
-
-            displayGameOver(context, canvas);
 
         } else if (state == 2) {
 
@@ -653,7 +653,7 @@ function resetGame(context, canvas) {
     resetDisplay(context, canvas)
     gameStarted = 0;
     gamePaused = 0;
-    gameEnded = 1;
+    gameEnded = 0;
     snake = new Snake(10, 4);
     direction = "right";
     score = 4;
