@@ -53,30 +53,12 @@ class Snake extends Block {
         this.blockDimensions = blockDimensions;
         this.length = length;
         this.direction = initialDirection;
+
         this.inputLocked = 0;
-        
-        this.blocks = (() => {
-
-            let blockArray = [];
-
-            for (let i = this.length - 1; i >= 0; i--) {
-
-                let block = new Block(this.blockDimension);
-                block.x = i;
-                block.y = 0;
-                blockArray.push(block);
-
-            }
-
-            return blockArray;
-
-        })();
-
         this.head = this.blocks[0];
-
         this.nextHead = (() => {
-
-            let nextHead = new Block(this.blockDimensions, this.snake.head.x, this.snake.head.y);
+            
+            let nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
 
             if (this.direction == "up") {
 
@@ -98,7 +80,7 @@ class Snake extends Block {
 
             return nextHead;
 
-        });
+        })();
         
     }
 
@@ -135,7 +117,7 @@ class Snake extends Block {
     selfCollision() {
 
         for (let block of this.blocks) {
-
+            
             return ((this.nextHead.x == block.x) && (this.nextHead.y == block.y));
 
         }
