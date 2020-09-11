@@ -50,35 +50,9 @@ class Snake extends Block {
 
         super(blockDimensions);
         this.blockDimensions = blockDimensions;
-        debugger;
         this.length = length;
         this.direction = initialDirection;
         this.inputLocked = 0;
-        this.nextHead = (() => {
-            
-            let nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
-
-            if (this.direction == "up") {
-
-                nextHead.y--;
-
-            } else if (this.direction.y == "down") {
-
-                nextHead.y++;
-
-            } else if (this.direction == "left") {
-
-                nextHead.x--;
-
-            } else if (this.direction == "right") {
-
-                nextHead.x++;
-
-            }
-
-            return nextHead;
-
-        })();
         
     }
 
@@ -117,7 +91,7 @@ class Snake extends Block {
         for (let i = 1; i < this.blocks.length; i++) {
 
             if ((this.head.x == this.blocks[i].x) && (this.head.y == this.blocks[i].y)) {
-                debugger;
+                
                 return true;
 
             };
@@ -127,32 +101,6 @@ class Snake extends Block {
     }
 
     headCollision(totalHorizontalBlocks, totalVerticalBlocks) {
-
-        this.nextHead = (() => {
-
-            let nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
-
-            if (this.direction == "up") {
-
-                nextHead.y--;
-
-            } else if (this.direction == "down") {
-
-                nextHead.y++;
-
-            } else if (this.direction == "left") {
-
-                nextHead.x--;
-
-            } else if (this.direction == "right") {
-
-                nextHead.x++;
-
-            }
-
-            return nextHead;
-
-        })();
 
         return (this.selfCollision() || this.boundsCollision(totalHorizontalBlocks, totalVerticalBlocks));
 
@@ -208,9 +156,21 @@ class Snake extends Block {
 
     }
 
-    set head(block) {
+    set head(blockObj) {
 
-        this.blocks.unshift(block);
+        this.blocks.unshift(blockObj);
+
+    }
+
+    set nextHead(value) {
+
+        throw new Error('nextHead property is read only');
+
+    }
+
+    set blocks(blockArray) {
+
+        this._blocks = blockArray;
 
     }
 
@@ -222,13 +182,45 @@ class Snake extends Block {
 
     get length() {
 
-        return this.blocks.length;
+        return this._blocks.length;
 
     }
 
     get head() {
 
-        return this.blocks[0];
+        return this._blocks[0];
+
+    }
+
+    get nextHead() {
+
+        this._nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
+
+            if (this.direction == "up") {
+
+                this._nextHead.y--;
+
+            } else if (this.direction == "down") {
+
+                this._nextHead.y++;
+
+            } else if (this.direction == "left") {
+
+                this._nextHead.x--;
+
+            } else if (this.direction == "right") {
+
+                this._nextHead.x++;
+
+            }
+
+        return this._nextHead;
+
+    }
+
+    get blocks() {
+
+        return this._blocks;
 
     }
 
@@ -476,7 +468,7 @@ class Game {
         }
 
     }
-    
+
     render() {
 
         if (this.gamePaused || this.gameEnded) { return; }
