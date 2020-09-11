@@ -110,14 +110,14 @@ class Snake extends Block {
 
     boundsCollision(totalHorizontalBlocks, totalVerticalBlocks) {
 
-        return (this.nextHead.x < 0 || this.nextHead.y < 0 || this.nextHead.x >= totalHorizontalBlocks || this.nextHead.y >= totalVerticalBlocks);
+        return (this.head.x < 0 || this.head.y < 0 || this.head.x >= totalHorizontalBlocks || this.head.y >= totalVerticalBlocks);
 
     }
 
     selfCollision() {
 
         for (let block of this.blocks) {
-            
+
             return ((this.nextHead.x == block.x) && (this.nextHead.y == block.y));
 
         }
@@ -517,7 +517,7 @@ class Game {
 
         }
 
-        if ((this.snake.nextHead.x == this.food.x) && (this.snake.nextHead.y == this.food.y)) {
+        if ((this.snake.head.x == this.food.x) && (this.snake.head.y == this.food.y)) {
 
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
