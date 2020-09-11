@@ -1,3 +1,5 @@
+'use strict';
+
 // -------------------------------------------------- CLASS DEFINITIONS -------------------------------------------------- //
 class Block {
 
@@ -51,6 +53,7 @@ class Snake extends Block {
         this.blockDimensions = blockDimensions;
         this.length = length;
         this.direction = initialDirection;
+        this.inputLocked = 0;
         
         this.blocks = (() => {
 
@@ -194,6 +197,8 @@ class Snake extends Block {
 
             }
 
+            this.inputLocked = 1;
+
     }
 
     set length(value) {
@@ -320,26 +325,35 @@ class Game {
 
         this.context = context;
         this.canvas = canvas;
+
+        // // Dimensions
         this.blockDimensions = 10;
-        this.initialSnakeLength = 4;
-        this.snake = new Snake(this.blockDimensions, this.initialSnakeLength);
-        this.food = new Food(this.blockDimensions)
         this.blockSpanHorizontal = this.canvas.width / this.blockDimensions;
         this.blockSpanVertical = this.canvas.height / this.blockDimensions;
         this.borderOffset = 5;
+
+        // Init Snake
+        this.initialSnakeLength = 4;
+        this.snake = new Snake(this.blockDimensions, this.initialSnakeLength);
+
+        // Init Food
+        this.food = new Food(this.blockDimensions)
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
+
+        // // Initial parameters for game.
+        this.score = 4;
+        // this.snake.direction defaults to "ArrowRight"
         this.gameStarted = 0;
         this.gameEnded = 0;
         this.gamePaused = 0;
-        this.wait = 0;
-        this.score = 4;
-        this.direction = "right";
 
+        // Bind instantiated Game object to render method.
+        this.render = this.render.bind(this);
     }
 
     startGame() {
 
-        this.interval = setInterval(draw, 45, this.context, this.canvas);
+        this.interval = setInterval(this.render, 45, this.context, this.canvas);
         this.gameStarted = 1;
 
     }
@@ -376,7 +390,7 @@ class Game {
         this.context.font = "48px Verdanna";
         this.context.fillText("Game Paused", 120, 220);
         this.context.font = "24px Verdanna";
-        this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 75, 300);
+        this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 70, 300);
 
     }
 
@@ -411,7 +425,7 @@ class Game {
 
     resetGame() {
 
-       this.clearInterval(this.interval);
+       clearInterval(this.interval);
        this.clearCanvas();
        this.resetProps();
        this.displayStart();
@@ -423,7 +437,7 @@ class Game {
         this.gameStarted = 0;
         this.gamePaused = 0;
         this.gameEnded = 0;
-        this.snake.reset();
+        this.snake = new Snake(this.blockDimensions, this.initialSnakeLength);
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
         this.direction = "right";
         this.score = 4;
@@ -437,8 +451,6 @@ class Game {
         this.context.fillText(`Score: ${this.score}`, this.borderOffset, this.canvas.height - this.borderOffset);
 
     }
-
-   
 
     resolvePausedGame(event) {
 
@@ -462,7 +474,6 @@ class Game {
 
             // Nonactive Game. Start the Game.
             this.startGame();
-            this.direction = "right";
 
         } else {
 
@@ -506,29 +517,25 @@ class Game {
 
     }
 
-    
-
     render() {
 
-        if (this.gamePaused) { return; }
-
+        if (this.gamePaused || this.gameEnded) { return; }
+        
         this.clearCanvas();
 
         this.snake.drawSnake(this.context);
 
         this.food.drawFood(this.context);
 
-        this.getNextHead();
-
         // Game Over
-        if (this.headCollision()) {
+        if (this.snake.headCollision(this.blockSpanHorizontal, this.blockSpanVertical)) {
 
             this.endGame();
             return;
 
         }
 
-        if ((this.nextHead.x == this.food.x) && (this.nextHead.y == this.food.y)) {
+        if ((this.snake.nextHead.x == this.food.x) && (this.snake.nextHead.y == this.food.y)) {
 
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
@@ -539,12 +546,12 @@ class Game {
 
         }
 
-        this.snake.head = this.nextHead;
+        this.snake.head = this.snake.nextHead;
 
-        drawScore();
+        this.drawScore();
 
         // User input has been processed. Allow new user input.
-        this.wait = 0;
+        this.snake.inputLocked = 0;
 
     }
 
@@ -556,35 +563,11 @@ class Game {
 let canvas = document.querySelector(".snake-game__display");
 let context = canvas.getContext("2d");
 
-// Dimensions
-let blockWidth = 10;
-let blockHeight = 10;
-let blockSpanHorizontal = canvas.width / blockWidth;
-let blockSpanVertical = canvas.height / blockHeight;
-
-// Initial parameters for game.
-let score = 4;
-let direction = "ArrowRight";
-let gameStarted = 0;
-let gameEnded = 0;
-let gamePaused = 0;
-
 let game = new Game(context, canvas);
 
 // Visual element used to toggle theme settings.
 const TOGGLEON = "fa-toggle-on";
 const TOGGLEOFF = "fa-toggle-off";
-
-//  Initialize a snake of 4 blocks.
-//  A snake is an array of objects.
-//  Each object defines the x and y coordinates of the individual blocks that make up the snake.
-let snake = new Snake(10, 4, direction);
-// Randomize food block location at least 5 blocks from edges to minimize difficulty.
-let food = new Food(10)
-food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
-
-// Used to prevent multiple user inputs per timer interval which can create snake collision bugs.
-let wait = 0;
 
 // Selector for toggle icon that allows user to select light or dark theme.
 let theme = document.querySelector(".theme-toggle");
@@ -597,274 +580,41 @@ window.addEventListener("load", () => {
     theme.classList.add('fas', 'fa-toggle-off');
     theme.style.fontSize = '30px';
     theme.style.cursor = 'pointer';
-    
-    displayStart(context);
     loadTheme();
+
+    game.displayStart();
 
 });
 
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
 
-    // If user entered a keyboard input, wait until next timer interval for new user input.
-    if (wait) return;
-    getDirection(event, context, canvas);
+    if (game.gamePaused) {
+
+        game.resolvePausedGame(event);
+        
+    } else if (event.code == "Enter") { 
+
+        game.handleEnterKey()
+
+    } else if (!game.snake.inputLocked) {
+        
+        game.snake.direction = event.code;
+
+    }
 
 });
 
 // Set the background theme whene user clicks on toggle element.
 theme.addEventListener("click", setTheme);
 
-// -------------------------------------------------- FUNCTION DEFINITIONS -------------------------------------------------- //
+// Returns an arbitrary number between min and max.
+function getRandomArbitraryNumber(min, max) {
 
-// Initializes the game state.
-function startGame(context, canvas) {
-
-    let interval = setInterval(draw, 45, context, canvas);
-    gameStarted = 1;
-    gameEnded = 0;
-    gamePaused = 0;
-
-    // 0 for gameover, 1 for reset, 2 for pause.
-    return ((state) => {
-
-        if (state == 0) {
-
-            displayGameOver(context, canvas);
-
-        } else if (state == 1) {
-
-            clearInterval(interval);
-            resetGame(context, canvas);
-
-        } else if (state == 2) {
-
-            displayGamePaused(context, canvas);
-
-        }
-
-    });
+    return Math.random() * (max - min) + min;
 
 }
 
-// Reset display and initial game parameters,
-function resetGame(context, canvas) {
-
-    resetDisplay(context, canvas)
-    gameStarted = 0;
-    gamePaused = 0;
-    gameEnded = 0;
-    snake = new Snake(10, 4);
-    direction = "right";
-    score = 4;
-
-}
-
-// Clears canvas and displays menu.
-function resetDisplay(context, canvas) {
-
-    clearCanvas(context, canvas);
-    displayStart(context);
-
-}
-
-// Set direction based on user input. Reset game if Enter key is pressed.
-function getDirection(event, context, canvas) {
-
-    if (gamePaused) {
-
-        if (event.code == 'Enter') {
-
-            // Paused Game. Resume the game.
-            resumeGame();
-
-        } else if (event.code == 'KeyN') {
-
-            // Paused Game. Restart the game.
-            window.game(1);
-
-        }
-
-        return;
-
-    }
-
-    if (event.code == "Enter") {
-
-        if (!gameStarted) {
-
-            // Nonactive Game. Start the Game.
-            window.game = startGame(context, canvas);
-            snake.direction = "right";
-
-        } else {
-
-            if (!gameEnded) {
-
-                //Active Game. Pause the game.
-                window.game(2);
-
-            } else {
-
-                // Game Over. Reset the game.
-                window.game(1);
-
-            }
-
-        }
-
-        return;
-
-    }
-
-    if (!(gameEnded || gamePaused)) {
-
-        // If user enters any movement key, raise wait flag to prevent further input.
-        wait = 1;
-        let prevDirection = snake.direction;
-        snake.direction = event.code;
-
-        // Bypass timer interval and immediately update canvas if user changes direction for more responsive movement.
-        if (snake.direction != prevDirection) {
-
-            draw(context, canvas);
-
-        }
-
-    }
-
-}
-
-// Draw food block at given location.
-function drawFood(context, food, blockWidth, blockHeight) {
-
-    context.fillStyle = "yellow";
-    context.fillRect(food.position.x * blockWidth, food.position.y * blockHeight, blockWidth, blockHeight);
-
-    context.strokeStyle = "orange";
-    context.strokeRect(food.position.x * blockWidth, food.position.y * blockHeight, blockWidth, blockHeight);
-
-}
-
-// Detect collision of snake against itself.
-function checkCollision(x, y, snake) {
-
-    for (let block of snake.blocks) {
-
-        return ((x == block.x) && (y == block.y));
-
-    }
-
-}
-
-// Detect collision of snake with borders.
-function checkOutOfBounds(snakeHeadX, snakeHeadY, blockSpanHorizontal, blockSpanVertical) {
-
-    return (snakeHeadX < 0 || snakeHeadY < 0 || snakeHeadX >= blockSpanHorizontal || snakeHeadY >= blockSpanVertical)
-
-}
-
-// Display score in bottom left corner.
-function drawScore(score, context, canvas) {
-
-    context.fillStyle = "yellow";
-    context.font = "10px Verdana";
-    context.fillText(`Score: ${score}`, 5, canvas.height - 5);
-
-}
-
-// Clear all drawings on canvas with given context.
-function clearCanvas(context, canvas) {
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-}
-
-// Draw a snake on canvas given the context.
-function draw(context, canvas) {
-
-    if (gamePaused) { return; }
-
-    clearCanvas(context, canvas);
-
-    snake.drawSnake(context);
-
-    food.drawFood(context);
-
-    // Game Over
-    if (snake.headCollision(blockSpanHorizontal, blockSpanVertical)) {
-
-        window.game(0);
-        gameEnded = 1;
-        wait = 0;
-        return;
-
-    }
-
-    if ((snake.nextHead.x == food.x) && (snake.nextHead.y == food.y)) {
-
-        food.randomizePosition(blockSpanHorizontal, blockSpanVertical, 5);
-        score++;
-
-    } else {
-
-        snake.pop();
-
-    }
-
-    snake.unshift(snake.nextHead);
-
-    drawScore(score, context, canvas);
-
-    // User input has been processed. Allow new user input.
-    wait = 0;
-
-}
-
-// Show the start screen.
-function displayStart(context) {
-
-    context.fillStyle = "gold";
-    context.font = "48px Verdanna";
-    context.fillText("Snake Game", 130, 220);
-    context.font = "24px Verdanna";
-    context.fillText(`Press "Enter" to start`, 152, 300);
-
-}
-
-// Show the game over screen after clearing the canvas.
-function displayGameOver(context, canvas) {
-
-    clearCanvas(context, canvas);
-    context.fillStyle = "gold";
-    context.font = "48px Verdanna";
-    context.fillText("Game Over", 135, 220);
-    context.font = "24px Verdanna";
-    context.fillText(`Press "Enter" to try again`, 125, 300);
-
-}
-
-// Show the pause screen after clearing the canvas.
-function displayGamePaused(context, canvas) {
-
-    clearCanvas(context, canvas);
-
-    context.fillStyle = "gold";
-    context.font = "48px Verdanna";
-    context.fillText("Game Paused", 120, 220);
-    context.font = "24px Verdanna";
-    context.fillText(`Press "Enter" to resume or 'n' to reset`, 75, 300);
-
-    gamePaused = 1;
-
-}
-
-// Resets the gamePaused flag which allows draw function to continue rendering.
-function resumeGame() {
-
-    gamePaused = 0;
-
-}
 
 // Load a background theme.
 function loadTheme() {
@@ -903,24 +653,5 @@ function setTheme() {
         localStorage.setItem("THEME", "light");
 
     }
-
-}
-
-// Returns an arbitrary number between min and max.
-function getRandomArbitraryNumber(min, max) {
-
-    return Math.random() * (max - min) + min;
-
-}
-
-// Create a food object with a random position.
-function createRandomFoodObject(blockSpanHorizontal, blockSpanVertical, borderOffset = 0) {
-
-    return {
-
-        x: Math.floor(getRandomArbitraryNumber(5, blockSpanHorizontal - borderOffset)),
-        y: Math.floor(getRandomArbitraryNumber(5, blockSpanVertical - borderOffset)),
-
-    };
 
 }
