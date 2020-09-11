@@ -46,16 +46,14 @@ class Block {
 
 class Snake extends Block {
 
-    constructor(blockDimensions = 1, length = 1, initialDirection = "ArrowRight") {
+    constructor(blockDimensions = 1, length = 4, initialDirection = "ArrowRight") {
 
         super(blockDimensions);
-
         this.blockDimensions = blockDimensions;
+        debugger;
         this.length = length;
         this.direction = initialDirection;
-
         this.inputLocked = 0;
-        this.head = this.blocks[0];
         this.nextHead = (() => {
             
             let nextHead = new Block(this.blockDimensions, this.head.x, this.head.y);
@@ -116,9 +114,13 @@ class Snake extends Block {
 
     selfCollision() {
 
-        for (let block of this.blocks) {
+        for (let i = 1; i < this.blocks.length; i++) {
 
-            return ((this.nextHead.x == block.x) && (this.nextHead.y == block.y));
+            if ((this.head.x == this.blocks[i].x) && (this.head.y == this.blocks[i].y)) {
+                debugger;
+                return true;
+
+            };
 
         }
 
@@ -474,31 +476,7 @@ class Game {
         }
 
     }
-
-    getNextHead() {
-
-        this.snake.nextHead = new Block(this.blockDimensions, this.snake.head.x, this.snake.head.y)
-
-        if (this.direction == "up") {
-
-            this.snake.nextHead.y--;
-
-        } else if (this.direction.y == "down") {
-
-            this.snake.nextHead.y++;
-
-        } else if (this.direction == "left") {
-
-            this.snake.nextHead.x--;
-
-        } else if (this.direction == "right") {
-
-            this.snake.nextHead.x++;
-
-        }
-
-    }
-
+    
     render() {
 
         if (this.gamePaused || this.gameEnded) { return; }
