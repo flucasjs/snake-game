@@ -46,14 +46,19 @@ class Block {
 
 class Snake extends Block {
 
-    constructor(blockDimensions = 1, length = 4, initialDirection = "ArrowRight") {
+    constructor(blockDimensions = 1, initialLength = 4, initialDirection = "ArrowRight") {
 
         super(blockDimensions);
         this.blockDimensions = blockDimensions;
-        this.length = length;
         this.direction = initialDirection;
         this.inputLocked = 0;
-        
+        this.blocks = [];
+        for (let i = initialLength - 1; i >= 0; i--) {
+
+            this.blocks.push(new Block(this.blockDimension, i, 0));
+
+        }
+
     }
 
     // --------------- Snake Methods --------------- //
@@ -135,30 +140,13 @@ class Snake extends Block {
 
     set length(value) {
 
-        this._length = value;
-
-        this.blocks = (() => {
-
-            let blockArray = [];
-
-            for (let i = this._length - 1; i >= 0; i--) {
-
-                let block = new Block(this.blockDimension);
-                block.x = i;
-                block.y = 0;
-                blockArray.push(block);
-
-            }
-
-            return blockArray;
-
-        })();
+        throw new Error("length property is read only.");
 
     }
 
     set head(blockObj) {
 
-        this.blocks.unshift(blockObj);
+        this._blocks.unshift(blockObj);
 
     }
 
@@ -302,35 +290,40 @@ class Game {
         this.context = context;
         this.canvas = canvas;
 
-        // // Dimensions
+        // Dimensions
         this.blockDimensions = 10;
         this.blockSpanHorizontal = this.canvas.width / this.blockDimensions;
         this.blockSpanVertical = this.canvas.height / this.blockDimensions;
         this.borderOffset = 5;
 
         // Init Snake
-        this.initialSnakeLength = 4;
-        this.snake = new Snake(this.blockDimensions, this.initialSnakeLength);
+        this.snake = new Snake(this.blockDimensions);
 
         // Init Food
         this.food = new Food(this.blockDimensions)
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
-
-        // // Initial parameters for game.
         this.score = 4;
-        // this.snake.direction defaults to "ArrowRight"
-        this.gameStarted = 0;
-        this.gameEnded = 0;
-        this.gamePaused = 0;
 
+        // Initial state.
+        this.state = {
+
+            gameStarted: 0,
+            gameEnded: 0,
+            gamePaused: 0,
+
+        }
+        
         // Bind instantiated Game object to render method.
         this.render = this.render.bind(this);
+        
     }
+
+    // --------------- Game Methods --------------- //
 
     startGame() {
 
         this.interval = setInterval(this.render, 45, this.context, this.canvas);
-        this.gameStarted = 1;
+        this.state.gameStarted = 1;
 
     }
 
@@ -381,7 +374,7 @@ class Game {
 
         this.clearCanvas();
         this.displayGameOver();
-        this.gameEnded = 1;
+        this.state.gameEnded = 1;
 
     }
 
@@ -389,13 +382,13 @@ class Game {
 
         this.clearCanvas();
         this.displayGamePaused();
-        this.gamePaused = 1;
+        this.state.gamePaused = 1;
 
     }
 
     resumeGame() {
 
-        this.gamePaused = 0;
+        this.state.gamePaused = 0;
 
     }
 
@@ -410,9 +403,9 @@ class Game {
 
     resetProps() {
 
-        this.gameStarted = 0;
-        this.gamePaused = 0;
-        this.gameEnded = 0;
+        this.state.gameStarted = 0;
+        this.state.gamePaused = 0;
+        this.state.gameEnded = 0;
         this.snake = new Snake(this.blockDimensions, this.initialSnakeLength);
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
         this.direction = "right";
@@ -446,14 +439,14 @@ class Game {
 
     handleEnterKey() {
 
-        if (!this.gameStarted) {
+        if (!this.state.gameStarted) {
 
             // Nonactive Game. Start the Game.
             this.startGame();
 
         } else {
 
-            if (!this.gameEnded) {
+            if (!this.state.gameEnded) {
 
                 //Active Game. Pause the game.
                 this.pauseGame();
@@ -469,25 +462,36 @@ class Game {
 
     }
 
-    render() {
+    gameOver() {
 
-        if (this.gamePaused || this.gameEnded) { return; }
-        
-        this.clearCanvas();
-
-        this.snake.drawSnake(this.context);
-
-        this.food.drawFood(this.context);
-
-        // Game Over
         if (this.snake.headCollision(this.blockSpanHorizontal, this.blockSpanVertical)) {
 
             this.endGame();
-            return;
+            return true;
 
         }
 
-        if ((this.snake.head.x == this.food.x) && (this.snake.head.y == this.food.y)) {
+    }
+
+    snakeAteFood() {
+
+        return ((this.snake.head.x == this.food.x) && (this.snake.head.y == this.food.y));
+
+    }
+
+    waitForNextInterval() {
+
+        return (this.state.gamePaused || this.state.gameEnded || this.gameOver());
+
+    }
+
+    drawNextFrame() {
+
+        this.clearCanvas();
+        this.snake.drawSnake(this.context);
+        this.food.drawFood(this.context);
+
+        if (this.snakeAteFood()) {
 
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
@@ -501,6 +505,20 @@ class Game {
         this.snake.head = this.snake.nextHead;
 
         this.drawScore();
+
+    }
+
+    render() {
+
+        if (this.waitForNextInterval()) { 
+
+            return; 
+
+        } else {
+
+            this.drawNextFrame();
+
+        }
 
         // User input has been processed. Allow new user input.
         this.snake.inputLocked = 0;
@@ -541,7 +559,7 @@ window.addEventListener("load", () => {
 // Move the snake based on user input of arrow keys.
 document.addEventListener("keydown", () => {
 
-    if (game.gamePaused) {
+    if (game.state.gamePaused) {
 
         game.resolvePausedGame(event);
         
