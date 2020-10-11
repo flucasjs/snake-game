@@ -1,6 +1,3 @@
-import Block from './Block.js';
-import Food from './Food.js';
-import Snake from './Snake.js';
 import Game from './Game.js';
 
 'use strict';
@@ -63,7 +60,7 @@ function loadTheme() {
 
     if (style == "dark") {
 
-        let element = document.getElementById("toggle");
+        let element = document.querySelector(".theme-toggle");
 
         element.classList.toggle(TOGGLEON);
         element.classList.toggle(TOGGLEOFF);
@@ -75,7 +72,7 @@ function loadTheme() {
 }
 
 // Display a background theme depending on the toggle element.
-function setTheme() {
+function setTheme(event) {
 
     let element = event.target;
 
