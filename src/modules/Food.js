@@ -1,10 +1,8 @@
 import Block from './Block.js';
 
-class Food extends Block {
+class Food {
 
     constructor(blockDimension = 1) {
-
-        super(blockDimension);
 
         this.block = new Block(blockDimension);
 
