@@ -1,17 +1,16 @@
 import Block from './Block.js';
 
-class Snake extends Block {
+class Snake {
 
     constructor(blockDimensions = 1, initialLength = 4, initialDirection = "ArrowRight") {
 
-        super(blockDimensions);
         this.blockDimensions = blockDimensions;
         this.direction = initialDirection;
         this.inputLocked = 0;
         this.blocks = [];
         for (let i = initialLength - 1; i >= 0; i--) {
 
-            this.blocks.push(new Block(this.blockDimension, i, 0));
+            this.blocks.push(new Block(this.blockDimensions, i, 0));
 
         }
 
