@@ -54,7 +54,7 @@ class Game {
     displayStart() {
        
        this.context.fillStyle = "gold";
-       this.context.font = "32px 'Press Start 2P'";
+       this.context.font = "32px 'press_start_2pregular'";
        this.context.fillText("Snake Game", 95, 220);
        this.context.font = "24px Verdanna";
        this.context.fillText(`Press "Enter" to start`, 145, 300);
@@ -64,7 +64,7 @@ class Game {
     displayGameOver() {
 
         this.context.fillStyle = "gold";
-        this.context.font = "32px 'Press Start 2P'";
+        this.context.font = "32px 'press_start_2pregular'";
         this.context.fillText("Game Over", 110, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to try again`, 125, 300);
@@ -75,7 +75,7 @@ class Game {
     displayGamePaused() {
 
         this.context.fillStyle = "gold";
-        this.context.font = "32px 'Press Start 2P'";
+        this.context.font = "32px 'press_start_2pregular'";
         this.context.fillText("Game Paused", 73, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 70, 300);
