@@ -68,6 +68,7 @@ class Game {
         this.context.fillText("Game Over", 110, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to try again`, 125, 300);
+        this.drawScore();
 
     }
 
@@ -78,6 +79,7 @@ class Game {
         this.context.fillText("Game Paused", 73, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 70, 300);
+        this.drawScore();
 
     }
 
