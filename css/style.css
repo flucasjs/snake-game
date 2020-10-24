@@ -40,3 +40,53 @@ body {
     width: 25px;
     height: 25px;
 }
+
+.snake-game__scoreboard {
+    width: 520px;
+    background-color: yellow;
+    border: 5px solid black;
+    margin-top: 25px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.snake-game__scores {
+    width: 400px;
+    margin: 0 auto;
+    list-style: none;
+}
+
+.snake-game__scores > li {
+    margin: 0;
+}
+
+.snake-game__scores--first::before {
+    content: '1st';
+    display: block;
+    font-size: 0.5em;
+}
+
+.snake-game__scores--first {
+    font-size: 2rem;
+}
+
+.snake-game__scores--second::before {
+    content: '2nd';
+    display: block;
+    font-size: 0.5em;
+}
+
+.snake-game__scores--second {
+    font-size: 1.75rem;
+}
+
+.snake-game__scores--third::before {
+    content: '3rd';
+    display: block;
+    font-size: 0.5em;
+}
+
+.snake-game__scores--third {
+    font-size: 1.5rem;
+}
