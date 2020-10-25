@@ -34,7 +34,7 @@ class Snake {
 
         for (let i = this.length - 1; i >= 0; i--) {
 
-            this.blocks[i].drawBlock(context, "white", "aqua");
+            this.blocks[i].drawBlock(context, "white", " #651fff");
 
         }
 

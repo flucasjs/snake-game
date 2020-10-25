@@ -3,16 +3,18 @@ import Snake from './Snake.js';
 
 class Game {
 
-    constructor(context, canvas) {
+    constructor(context, canvas, runningScore, scoreBoard) {
 
         this.context = context;
         this.canvas = canvas;
+        this.runningScore = runningScore;
+        this.scoreboard = scoreBoard;
 
         // Dimensions
         this.blockDimensions = 10;
         this.blockSpanHorizontal = this.canvas.width / this.blockDimensions;
         this.blockSpanVertical = this.canvas.height / this.blockDimensions;
-        this.borderOffset = 5;
+        this.borderOffset = 10;
 
         // Init Snake
         this.snake = new Snake(this.blockDimensions);
@@ -21,6 +23,7 @@ class Game {
         this.food = new Food(this.blockDimensions)
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
         this.score = 4;
+        this.highScores = [10, 6, 4];
 
         // Initial state.
         this.state = {
@@ -53,9 +56,9 @@ class Game {
 
     displayStart() {
        
-       this.context.fillStyle = "gold";
+       this.context.fillStyle = "#FFF";
        this.context.font = "32px 'press_start_2pregular'";
-       this.context.fillText("Snake Game", 95, 220);
+       this.context.fillText("Snek Game", 100, 220);
        this.context.font = "24px Verdanna";
        this.context.fillText(`Press "Enter" to start`, 145, 300);
     
@@ -63,23 +66,23 @@ class Game {
 
     displayGameOver() {
 
-        this.context.fillStyle = "gold";
+        this.context.fillStyle = "#FFF";
         this.context.font = "32px 'press_start_2pregular'";
         this.context.fillText("Game Over", 110, 220);
         this.context.font = "24px Verdanna";
         this.context.fillText(`Press "Enter" to try again`, 125, 300);
-        this.drawScore();
+        this.drawCurrentScore();
 
     }
 
     displayGamePaused() {
 
-        this.context.fillStyle = "gold";
+        this.context.fillStyle = "#FFF";
         this.context.font = "32px 'press_start_2pregular'";
         this.context.fillText("Game Paused", 73, 220);
         this.context.font = "24px Verdanna";
-        this.context.fillText(`Press "Enter" to resume or 'n' to reset`, 70, 300);
-        this.drawScore();
+        this.context.fillText(`Press "Enter" to resume or 'r' to reset`, 70, 300);
+        this.drawCurrentScore();
 
     }
 
@@ -95,6 +98,7 @@ class Game {
         this.clearCanvas();
         this.displayGameOver();
         this.state.gameEnded = 1;
+        this.drawHighScores();
 
     }
 
@@ -130,14 +134,60 @@ class Game {
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
         this.direction = "right";
         this.score = 4;
+        this.drawCurrentScore();
 
     }
 
-    drawScore() {
+    drawCurrentScore() {
 
-        this.context.fillStyle = "yellow";
-        this.context.font = "10px Verdana";
+        this.context.fillStyle = "#FFF";
+        this.context.font = "12px 'press_start_2pregular'";
         this.context.fillText(`Score: ${this.score}`, this.borderOffset, this.canvas.height - this.borderOffset);
+
+        this.runningScore.textContent = this.score;
+
+    }
+
+    drawHighScores() {
+
+        // If current score > smallest high score value
+        if (this.score > this.highScores[2]) {
+
+            const highScoreIndex = this.highScores.indexOf(this.score);
+
+            if (highScoreIndex === -1) {
+
+                this.highScores.push(this.score);
+
+                // Filter values greather than smallest high score. Sort in descending order.
+                this.highScores = this.highScores.filter((v, i, a) => {
+
+                    return (v > a[2]);
+
+                }).sort((a, b) => {
+
+                    return (b > a);
+
+                })
+
+                const scores = this.scoreboard.querySelectorAll('li');
+                for (let i = 0; i < scores.length; i++) {
+
+                    scores[i].textContent = `${this.highScores[i]} pts`;
+
+                }
+                
+                // debugger;
+                // setTimeout(() => {
+                //     const newHighScoreIndex = this.highScores.indexOf(this.score);
+                //     setTimeout(() => {
+                //         scores[newHighScoreIndex].style.color = "#0100ca";
+                //     }, 1000);
+                //     scores[newHighScoreIndex].style.color = "#FFF";
+                // }, 1000);
+                
+            }
+        }
 
     }
 
@@ -148,7 +198,7 @@ class Game {
             // Paused Game. Resume the game.
             this.resumeGame();
 
-        } else if (event.code == 'KeyN') {
+        } else if (event.code == 'KeyR') {
 
             // Paused Game. Restart the game.
             this.resetGame();
@@ -224,7 +274,7 @@ class Game {
 
         this.snake.head = this.snake.nextHead;
 
-        this.drawScore();
+        this.drawCurrentScore();
 
     }
 

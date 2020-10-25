@@ -7,8 +7,10 @@ import Game from './Game.js';
 // Initialize 2d drawing context for canvas element.
 let canvas = document.querySelector(".snake-game__display");
 let context = canvas.getContext("2d");
+let scoreBoard = document.querySelector('.snake-game__high-scores')
+let runningScore = document.querySelector('.snake-game__running-score > p')
 
-let game = new Game(context, canvas);
+let game = new Game(context, canvas, runningScore, scoreBoard);
 
 // Visual element used to toggle theme settings.
 const TOGGLEON = "fa-toggle-on";
@@ -92,3 +94,5 @@ function setTheme(event) {
     }
 
 }
+
+console.log(game.score);
