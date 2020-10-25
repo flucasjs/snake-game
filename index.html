@@ -12,19 +12,29 @@
     
 </head>
 <body>
-    <div class="theme-toggle">
-        <div class="theme-toggle__icon"></div>
-    </div>
-    <div class="snake-game">
-        <canvas class="snake-game__display" width="500px" height="500px"></canvas>
-        <div class="snake-game__scoreboard">
-            <h2>High Scores: </h2>
-            <ul class="snake-game__scores">
-                <li class="snake-game__scores snake-game__scores--first">30 pts</li>
-                <li class="snake-game__scores snake-game__scores--second">20 pts</li>
-                <li class="snake-game__scores snake-game__scores--third">10 pts</li>
-            </ul>
+    <header>
+        <h1 class="title">Snek Game</h1>
+        <div class="longboi"></div>
+    </header>
+    <main> 
+        <div class="theme-toggle">
+            <div class="theme-toggle__icon"></div>
         </div>
-    </div>
+        <div class="snake-game">
+            <div class="snake-game__running-score">
+                <h2>Current Score</h2>
+                <p>4</p>
+            </div>
+            <canvas class="snake-game__display" width="500px" height="500px"></canvas>
+            <div class="snake-game__scoreboard">
+                <h2>High scores</h2>
+                <ul class="snake-game__high-scores">
+                    <li class="snake-game__high-scores snake-game__high-scores--first">10 pts</li>
+                    <li class="snake-game__high-scores snake-game__high-scores--second">6 pts</li>
+                    <li class="snake-game__high-scores snake-game__high-scores--third">5 pts</li>
+                </ul>
+            </div>
+        </div>
+    </main>
 </body>
 </html>
