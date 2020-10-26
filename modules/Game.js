@@ -146,6 +146,8 @@ class Game {
 
         this.runningScore.textContent = this.score;
 
+        // TO DO: scoring animation
+
     }
 
     drawHighScores() {
@@ -154,11 +156,13 @@ class Game {
 
         if (this.score > smallestHighScore) {
 
-            const highScoreIndex = this.highScores.indexOf(this.score);
+            let newHighScore = this.score;
+
+            const highScoreIndex = this.highScores.indexOf(newHighScore);
 
             if (highScoreIndex === -1) {
 
-                this.highScores.push(this.score);
+                this.highScores.push(newHighScore);
 
                 this.highScores = this.highScores.sort((a, b) => {
 
@@ -175,17 +179,34 @@ class Game {
 
                     scores[i].textContent = `${this.highScores[i]} pts`;
 
+                    if (Number.parseInt(scores[i].textContent) === newHighScore) {
+
+                        let intervalCount = 0;
+
+                        // Flashes new high score 4 times.
+                        let flashingInterval = setInterval(() => {
+
+                            scores[i].style.color = 'yellow';
+
+                            setTimeout(() => {
+
+                                scores[i].style.color = 'black';
+
+                            }, 125);
+
+                            intervalCount++;
+
+                            if (intervalCount > 3) {
+
+                                clearInterval(flashingInterval);
+    
+                            }
+
+                        }, 250)
+
+
+                    }
                 }
-                
-                // debugger;
-                // setTimeout(() => {
-                //     const newHighScoreIndex = this.highScores.indexOf(this.score);
-                //     setTimeout(() => {
-                //         scores[newHighScoreIndex].style.color = "#0100ca";
-                //     }, 1000);
-                //     scores[newHighScoreIndex].style.color = "#FFF";
-                // }, 1000);
-                
             }
         }
 
