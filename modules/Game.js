@@ -22,7 +22,7 @@ class Game {
         // Init Food
         this.food = new Food(this.blockDimensions)
         this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
-        this.score = 4;
+        this.score = 19;
         this.highScores = [10, 6, 4];
 
         // Initial state.
@@ -159,7 +159,7 @@ class Game {
 
                 this.highScores.push(this.score);
 
-                // Filter values greather than smallest high score. Sort in descending order.
+                // Filter values greater than smallest high score. Sort in descending order.
                 this.highScores = this.highScores.filter((v, i, a) => {
 
                     return (v > a[2]);

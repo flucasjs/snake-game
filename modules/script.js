@@ -94,5 +94,3 @@ function setTheme(event) {
     }
 
 }
-
-console.log(game.score);
