@@ -162,7 +162,7 @@ class Game {
 
                 this.highScores = this.highScores.sort((a, b) => {
 
-                    return (b > a);
+                    return (b - a);
 
                 }).filter((v, i, a) => {
 
