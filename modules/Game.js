@@ -148,6 +148,8 @@ class Game {
 
         // TO DO: scoring animation
 
+        
+
     }
 
     drawHighScores() {
@@ -184,7 +186,7 @@ class Game {
                         let intervalCount = 0;
 
                         // Flashes new high score 4 times.
-                        let flashingInterval = setInterval(() => {
+                        let animationInterval = setInterval(() => {
 
                             scores[i].style.color = 'yellow';
 
@@ -198,12 +200,11 @@ class Game {
 
                             if (intervalCount > 3) {
 
-                                clearInterval(flashingInterval);
+                                clearInterval(animationInterval);
     
                             }
 
                         }, 250)
-
 
                     }
                 }
@@ -286,6 +287,27 @@ class Game {
 
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
+            this.drawCurrentScore();
+
+            setTimeout(() => {
+
+                this.runningScore.style.color = "yellow";
+                
+                setTimeout(() => {
+    
+                    this.runningScore.style.color = "#651fff"
+    
+                }, 100);
+
+                intervalCount++;
+
+                if (intervalCount > 3) {
+
+                    clearInterval(animationInterval)
+
+                }
+    
+            });
 
         } else {
 
