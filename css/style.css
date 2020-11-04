@@ -23,18 +23,18 @@ header {
     border-top: 25px solid #a255ff;
 }
 
-.title {
+.title__text {
     color: #FFF;
     font-family: 'press_start_2pregular', cursive;
     font-size: 3rem;
     padding: 0.25em 0.5em;
 }
 
-.title::after {
+.title__text::after {
     content: "🐍";
 }
 
-.longboi {
+.title__underline {
     height: 20px;
     width: 36%;
     border-radius: 0px 10px 0px 0px;
