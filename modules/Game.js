@@ -10,6 +10,10 @@ class Game {
         this.runningScore = runningScore;
         this.scoreboard = scoreBoard;
 
+        // Timer Interval
+        this.intervalTime = 45;
+        this.minInterval = 20;
+
         // Dimensions
         this.blockDimensions = 10;
         this.blockSpanHorizontal = this.canvas.width / this.blockDimensions;
@@ -43,7 +47,7 @@ class Game {
 
     startGame() {
 
-        this.interval = setInterval(this.render, 45, this.context, this.canvas);
+        this.interval = setInterval(this.render, this.intervalTime, this.context, this.canvas);
         this.state.gameStarted = 1;
 
     }
@@ -121,6 +125,7 @@ class Game {
        clearInterval(this.interval);
        this.clearCanvas();
        this.resetProps();
+       this.resetTimer();
        this.displayStart();
 
     }
@@ -145,10 +150,6 @@ class Game {
         this.context.fillText(`Score: ${this.score}`, this.borderOffset, this.canvas.height - this.borderOffset);
 
         this.runningScore.textContent = this.score;
-
-        // TO DO: scoring animation
-
-        
 
     }
 
@@ -284,12 +285,20 @@ class Game {
         this.food.drawFood(this.context);
 
         if (this.snakeAteFood()) {
+            
+            if (this.intervalTime > this.minInterval) {
+                
+                this.increaseSpeed(2.5);
 
+            }
+            
             this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
             this.score++;
             this.drawCurrentScore();
 
             setTimeout(() => {
+
+                let intervalCount = 0;
 
                 this.runningScore.style.color = "yellow";
                 
@@ -335,6 +344,27 @@ class Game {
 
         // User input has been processed. Allow new user input.
         this.snake.inputLocked = 0;
+
+    }
+
+    increaseSpeed(ms) {
+
+        if (ms >= this.intervalTime) {
+
+            this.resetTimer();
+            throw Error(`Interval time must be less than ${this.intervalTime}ms`);
+            
+        }
+        debugger;
+        this.intervalTime -= ms;
+        clearInterval(this.interval);
+        this.interval = setInterval(this.render, this.intervalTime, this.context, this.canvas);
+    }
+
+    resetTimer() {
+
+        clearInterval(this.interval);
+        this.intervalTime = 45;
 
     }
 
