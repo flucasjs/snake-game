@@ -55,7 +55,7 @@ class Game {
     startGame() {
 
         this.state.gameStarted = 1;
-        this.interval = setInterval(this.render, this.intervalTime, this.context, this.canvas);
+        this.interval = setInterval(this.render, this.intervalTime);
 
     }
 
@@ -277,12 +277,12 @@ class Game {
             throw Error("Attempting to resolve an unpaused game. The game must be paused if resolvePausedGame is called.")
         }
 
-        if (event.code == 'Enter') {
+        if (event.code === 'Enter') {
 
             // Paused Game. Resume the game.
             this.resumeGame();
 
-        } else if (event.code == 'KeyR') {
+        } else if (event.code === 'KeyR') {
 
             // Paused Game. Restart the game.
             this.resetGame();
@@ -333,11 +333,27 @@ class Game {
     // Determine wheather the snake head is in the same position as the food.
     snakeAteFood() {
 
-        return ((this.snake.head.x == this.food.x) && (this.snake.head.y == this.food.y));
+        return ((this.snake.head.x === this.food.x) && (this.snake.head.y === this.food.y));
 
     }
 
-    // 
+    foodSpawnedOnSnake() {
+
+        for (let block of this.snake.blocks) {
+
+            if (this.food.x === block.x || this.food.y === block.y) {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+    
     waitForNextInterval() {
 
         return (this.state.gamePaused || this.state.gameEnded || this.gameOver());
@@ -358,7 +374,12 @@ class Game {
 
             }
             
-            this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
+            do {
+
+                this.food.randomizePosition(this.blockSpanHorizontal, this.blockSpanVertical, this.borderOffset);
+
+            } while(this.foodSpawnedOnSnake());
+
             this.score++;
             this.displayCurrentScore();
 
@@ -398,9 +419,13 @@ class Game {
 
     render() {
 
-        if (this.waitForNextInterval()) return; 
-        this.drawNextFrame();
+        if (this.waitForNextInterval()) {
 
+            return; 
+
+        }
+
+        this.drawNextFrame();
 
         // User input has been processed. Allow new user input.
         this.snake.inputLocked = 0;
@@ -418,7 +443,7 @@ class Game {
 
         this.intervalTime -= ms;
         clearInterval(this.interval);
-        this.interval = setInterval(this.render, this.intervalTime, this.context, this.canvas);
+        this.interval = setInterval(this.render, this.intervalTime);
     }
 
 
